@@ -6,6 +6,8 @@ include $(INCLUDE_DIR)/image.mk
 DEVICE_VARS += UBOOT_DEVICE_NAME
 
 define Build/Compile
+	$(CP) $(TOPDIR)/target/linux/rockchip/dts/rk3399-rock-pi-4b-single.dts $(LINUX_DIR)/arch/arm64/boot/dts/rockchip/
+	echo "dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-rock-pi-4b-single.dtb" >> $(LINUX_DIR)/arch/arm64/boot/dts/rockchip/Makefile
 	$(CP) $(LINUX_DIR)/COPYING $(KDIR)/COPYING.linux
 endef
 

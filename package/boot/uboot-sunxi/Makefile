@@ -9,9 +9,9 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_VERSION:=2020.04
+PKG_VERSION:=2022.10
 
-PKG_HASH:=fe732aaf037d9cc3c0909bad8362af366ae964bbdac6913a34081ff4ad565372
+PKG_HASH:=skip
 
 PKG_MAINTAINER:=Zoltan HERPAI <wigyori@uid0.hu>
 
@@ -334,6 +334,13 @@ define U-Boot/bananapi_m2_berry
   BUILD_DEVICES:=sinovoip_bananapi-m2-berry
 endef
 
+define U-Boot/licheepi_nano
+  BUILD_SUBTARGET:=arm9
+  NAME:=Licheepi Nano
+  UENV:=arm9
+  BUILD_DEVICES:=tskangetsu_licheepi-nano
+endef
+
 UBOOT_TARGETS := \
 	a64-olinuxino \
 	a64-olinuxino-emmc \
@@ -380,7 +387,8 @@ UBOOT_TARGETS := \
 	pine64_plus \
 	sopine_baseboard \
 	orangepi_zero_plus \
-	libretech_all_h3_cc_h5
+	libretech_all_h3_cc_h5 \
+  licheepi_nano
 
 UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
 

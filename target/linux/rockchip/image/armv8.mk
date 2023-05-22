@@ -41,3 +41,13 @@ define Device/radxa_rock-pi-4a
   IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
 endef
 TARGET_DEVICES += radxa_rock-pi-4a
+
+define Device/tskangetsu_rock-pi-4b-single
+  DEVICE_VENDOR := Radxa
+  DEVICE_MODEL := ROCK Pi 4B FOR SingleFlight
+  SOC := rk3399
+  SUPPORTED_DEVICES := radxa,rockpi4a radxa,rockpi4
+  UBOOT_DEVICE_NAME := rock-pi-4-rk3399
+  IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
+endef
+TARGET_DEVICES += tskangetsu_rock-pi-4b-single
