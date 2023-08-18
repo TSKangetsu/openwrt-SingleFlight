@@ -387,8 +387,8 @@ UBOOT_TARGETS := \
 	pine64_plus \
 	sopine_baseboard \
 	orangepi_zero_plus \
-	libretech_all_h3_cc_h5 \
-  licheepi_nano
+	libretech_all_h3_cc_h5
+  # licheepi_nano
 
 UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
 

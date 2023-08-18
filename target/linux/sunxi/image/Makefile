@@ -13,8 +13,8 @@ DEVICE_VARS := SUNXI_DTS SUNXI_DTS_DIR
 KERNEL_LOADADDR:=0x40008000
 
 define Build/Compile
-	$(CP) $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s-licheepi-nano.dts $(LINUX_DIR)/arch/arm/boot/dts/
-	$(CP) $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s.dtsi $(LINUX_DIR)/arch/arm/boot/dts/
+	@cp $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s-licheepi-nano.dts $(LINUX_DIR)/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano.dts
+	@cp $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s.dtsi $(LINUX_DIR)/arch/arm/boot/dts/suniv-f1c100s.dtsi
 endef
 
 define Build/sunxi-sdcard
