@@ -43,6 +43,7 @@
 };
 
 &i2c7 {
+	clock-frequency = <800000>;
 	status = "okay";
 };
 
