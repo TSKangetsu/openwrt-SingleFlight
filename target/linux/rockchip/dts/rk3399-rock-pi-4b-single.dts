@@ -11,9 +11,9 @@
 	model = "Radxa ROCK Pi 4B";
 	compatible = "radxa,rockpi4b", "radxa,rockpi4", "rockchip,rk3399";
 
-	chosen {
-		stdout-path = "serial2:115200n8";
-	};
+	// chosen {
+	// 	stdout-path = "serial2:115200n8";
+	// };
 };
 
 &sdio0 {
@@ -27,6 +27,29 @@
 		interrupt-names = "host-wake";
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_host_wake_l>;
+	};
+};
+
+&thermal_zones {
+	cpu_thermal {
+		cooling-maps {
+			map0 {
+				trip = <&cpu_alert0>;
+				cooling-device =
+					<&cpu_b0 1 1>,
+					<&cpu_b1 1 1>;
+			};
+			map1 {
+				trip = <&cpu_alert1>;
+				cooling-device =
+					<&cpu_l0 5 5>,
+					<&cpu_l1 5 5>,
+					<&cpu_l2 5 5>,
+					<&cpu_l3 5 5>,
+					<&cpu_b0 5 5>,
+					<&cpu_b1 5 5>;
+			};
+		};
 	};
 };
 

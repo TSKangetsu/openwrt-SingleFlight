@@ -81,6 +81,8 @@ UBOOT_MAKE_FLAGS += \
   BL31=$(STAGING_DIR_IMAGE)/$(ATF)
 
 define Build/Configure
+	$(CP) $(TOPDIR)/package/boot/uboot-rockchip/config/* $(PKG_BUILD_DIR)/configs/
+
 	$(call Build/Configure/U-Boot)
 
 ifneq ($(OF_PLATDATA),)
