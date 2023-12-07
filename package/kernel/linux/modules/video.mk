@@ -499,35 +499,19 @@ endef
 $(eval $(call KernelPackage,video-uvc))
 
 define KernelPackage/camera-ov5640
-    TITLE:=OV5640 MIPI Camera Interface
-    DEPENDS:=+PACKAGE_kmod-i2c-core:kmod-i2c-core
-    KCONFIG:= CONFIG_VIDEO_OV5640
-    FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
-    AUTOLOAD:=$(call AutoLoad,70,ov5640)
-	$(call AddDepends/camera)
+	TITLE:=OV5640 MIPI Camera Interface
+  DEPENDS:=+kmod-i2c-core
+  KCONFIG:= CONFIG_VIDEO_OV5640
+  FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
+  AUTOLOAD:=$(call AutoLoad,70,ov5640)
+  $(call AddDepends/camera)
 endef
 
-define KernelPackage/sunxi-csi/description
- Support for the AllWinner sunXi SoC's CSI mipi port
+define KernelPackage/camera-ov5640/description
+ Support for OV5640 i2c device
 endef
 
 $(eval $(call KernelPackage,camera-ov5640))
-
-define KernelPackage/sunxi-csi
-    TITLE:=SUN6I SoC CSI
-    DEPENDS:=@TARGET_sunxi +kmod-video-videobuf2
-    KCONFIG:=CONFIG_VIDEO_SUN6I_CSI
-    FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
-    AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
-	$(call AddDepends/camera)
-endef
-
-define KernelPackage/sunxi-csi/description
- Support for the AllWinner sunXi SoC's CSI mipi port
-endef
-
-$(eval $(call KernelPackage,sunxi-csi))
-
 
 define KernelPackage/video-gspca-core
   MENU:=1

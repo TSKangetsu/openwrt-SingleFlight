@@ -1,6 +1,21 @@
 # SPDX-License-Identifier: GPL-2.0-only
-#
+# 
 # Copyright (C) 2013-2016 OpenWrt.org
+
+define KernelPackage/sunxi-csi
+    TITLE:=SUN6I SoC CSI
+    DEPENDS:=@TARGET_sunxi +kmod-video-videobuf2
+    KCONFIG:=CONFIG_VIDEO_SUN6I_CSI
+    FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
+    AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
+	$(call AddDepends/camera)
+endef
+
+define KernelPackage/sunxi-csi/description
+ Support for the AllWinner sunXi SoC's CSI mipi port
+endef
+
+$(eval $(call KernelPackage,sunxi-csi))
 
 define KernelPackage/rtc-sunxi
     SUBMENU:=$(OTHER_MENU)
