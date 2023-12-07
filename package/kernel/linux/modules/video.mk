@@ -398,10 +398,12 @@ define KernelPackage/video-core
 	CONFIG_MEDIA_SUPPORT \
 	CONFIG_MEDIA_CAMERA_SUPPORT=y \
 	CONFIG_VIDEO_DEV \
+  CONFIG_V4L2_FWNODE \
 	CONFIG_V4L_PLATFORM_DRIVERS=y
   FILES:= \
-	$(LINUX_DIR)/drivers/media/$(V4L2_DIR)/videodev.ko
-  AUTOLOAD:=$(call AutoLoad,60, videodev v4l2-common)
+	$(LINUX_DIR)/drivers/media/$(V4L2_DIR)/videodev.ko \
+  $(LINUX_DIR)/drivers/media/v4l2-core/v4l2-fwnode.ko
+  AUTOLOAD:=$(call AutoLoad,60, videodev v4l2-common v4l2-fwnode)
 endef
 
 define KernelPackage/video-core/description
@@ -434,8 +436,9 @@ define KernelPackage/video-videobuf2
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-common.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-v4l2.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-memops.ko \
-	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-vmalloc.ko
-  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-vmalloc)
+	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-vmalloc.ko \
+	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-dma-contig.ko
+  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-vmalloc videobuf2-dma-contig)
   $(call AddDepends/video)
 endef
 
@@ -494,6 +497,36 @@ define KernelPackage/video-uvc/description
 endef
 
 $(eval $(call KernelPackage,video-uvc))
+
+define KernelPackage/camera-ov5640
+    TITLE:=OV5640 MIPI Camera Interface
+    DEPENDS:=+PACKAGE_kmod-i2c-core:kmod-i2c-core
+    KCONFIG:= CONFIG_VIDEO_OV5640
+    FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
+    AUTOLOAD:=$(call AutoLoad,70,ov5640)
+	$(call AddDepends/camera)
+endef
+
+define KernelPackage/sunxi-csi/description
+ Support for the AllWinner sunXi SoC's CSI mipi port
+endef
+
+$(eval $(call KernelPackage,camera-ov5640))
+
+define KernelPackage/sunxi-csi
+    TITLE:=SUN6I SoC CSI
+    DEPENDS:=@TARGET_sunxi +kmod-video-videobuf2
+    KCONFIG:=CONFIG_VIDEO_SUN6I_CSI
+    FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
+    AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
+	$(call AddDepends/camera)
+endef
+
+define KernelPackage/sunxi-csi/description
+ Support for the AllWinner sunXi SoC's CSI mipi port
+endef
+
+$(eval $(call KernelPackage,sunxi-csi))
 
 
 define KernelPackage/video-gspca-core
