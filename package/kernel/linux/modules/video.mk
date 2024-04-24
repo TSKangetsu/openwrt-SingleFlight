@@ -398,6 +398,8 @@ define KernelPackage/video-core
 	CONFIG_MEDIA_SUPPORT \
 	CONFIG_MEDIA_CAMERA_SUPPORT=y \
 	CONFIG_VIDEO_DEV \
+	CONFIG_VIDEO_ADV_DEBUG=y \
+	CONFIG_MEDIA_CONTROLLER=y \
   CONFIG_V4L2_FWNODE \
 	CONFIG_V4L_PLATFORM_DRIVERS=y
   FILES:= \
@@ -431,14 +433,13 @@ define KernelPackage/video-videobuf2
   KCONFIG:= \
 	CONFIG_VIDEOBUF2_CORE \
 	CONFIG_VIDEOBUF2_MEMOPS \
-	CONFIG_VIDEOBUF2_VMALLOC
+	VIDEOBUF2_DMA_CONTIG
   FILES:= \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-common.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-v4l2.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-memops.ko \
-	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-vmalloc.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-dma-contig.ko
-  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-vmalloc videobuf2-dma-contig)
+  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-dma-contig)
   $(call AddDepends/video)
 endef
 
@@ -501,7 +502,7 @@ $(eval $(call KernelPackage,video-uvc))
 define KernelPackage/camera-ov5640
 	TITLE:=OV5640 MIPI Camera Interface
   DEPENDS:=+kmod-i2c-core
-  KCONFIG:= CONFIG_VIDEO_OV5640
+  KCONFIG:= CONFIG_VIDEO_OV5640 
   FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
   AUTOLOAD:=$(call AutoLoad,70,ov5640)
   $(call AddDepends/camera)
@@ -512,6 +513,22 @@ define KernelPackage/camera-ov5640/description
 endef
 
 $(eval $(call KernelPackage,camera-ov5640))
+
+define KernelPackage/camera-hkv
+	TITLE:=HKV camera uart controller
+  KCONFIG:= CONFIG_SERIAL_DEV_BUS=y \
+            CONFIG_SERIAL_DEV_CTRL_TTYPORT=y \
+            CONFIG_HKV_THERMAL_CAMERA
+  FILES:= $(LINUX_DIR)/drivers/media/uart/HKVison.ko
+  AUTOLOAD:=$(call AutoLoad,70,HKVison)
+  $(call AddDepends/camera)
+endef
+
+define KernelPackage/camera-hkv/description
+ Support for OV5640 i2c device
+endef
+
+$(eval $(call KernelPackage,camera-hkv))
 
 define KernelPackage/video-gspca-core
   MENU:=1

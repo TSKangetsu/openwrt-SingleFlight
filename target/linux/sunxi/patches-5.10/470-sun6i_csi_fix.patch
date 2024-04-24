@@ -1,0 +1,780 @@
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+@@ -18,47 +18,29 @@
+ #include "sun6i_video.h"
+ 
+ /* This is got from BSP sources. */
+-#define MIN_WIDTH	(32)
+-#define MIN_HEIGHT	(32)
+-#define MAX_WIDTH	(4800)
+-#define MAX_HEIGHT	(4800)
++#define MIN_WIDTH (32)
++#define MIN_HEIGHT (32)
++#define MAX_WIDTH (4800)
++#define MAX_HEIGHT (4800)
+ 
+ struct sun6i_csi_buffer {
+-	struct vb2_v4l2_buffer		vb;
+-	struct list_head		list;
++	struct vb2_v4l2_buffer vb;
++	struct list_head list;
+ 
+-	dma_addr_t			dma_addr;
+-	bool				queued_to_csi;
++	dma_addr_t dma_addr;
++	bool queued_to_csi;
+ };
+ 
+ static const u32 supported_pixformats[] = {
+-	V4L2_PIX_FMT_SBGGR8,
+-	V4L2_PIX_FMT_SGBRG8,
+-	V4L2_PIX_FMT_SGRBG8,
+-	V4L2_PIX_FMT_SRGGB8,
+-	V4L2_PIX_FMT_SBGGR10,
+-	V4L2_PIX_FMT_SGBRG10,
+-	V4L2_PIX_FMT_SGRBG10,
+-	V4L2_PIX_FMT_SRGGB10,
+-	V4L2_PIX_FMT_SBGGR12,
+-	V4L2_PIX_FMT_SGBRG12,
+-	V4L2_PIX_FMT_SGRBG12,
+-	V4L2_PIX_FMT_SRGGB12,
+-	V4L2_PIX_FMT_YUYV,
+-	V4L2_PIX_FMT_YVYU,
+-	V4L2_PIX_FMT_UYVY,
+-	V4L2_PIX_FMT_VYUY,
+-	V4L2_PIX_FMT_HM12,
+-	V4L2_PIX_FMT_NV12,
+-	V4L2_PIX_FMT_NV21,
+-	V4L2_PIX_FMT_YUV420,
+-	V4L2_PIX_FMT_YVU420,
+-	V4L2_PIX_FMT_NV16,
+-	V4L2_PIX_FMT_NV61,
+-	V4L2_PIX_FMT_YUV422P,
+-	V4L2_PIX_FMT_RGB565,
+-	V4L2_PIX_FMT_RGB565X,
+-	V4L2_PIX_FMT_JPEG,
++	V4L2_PIX_FMT_SBGGR8,  V4L2_PIX_FMT_SGBRG8,  V4L2_PIX_FMT_SGRBG8,
++	V4L2_PIX_FMT_SRGGB8,  V4L2_PIX_FMT_SBGGR10, V4L2_PIX_FMT_SGBRG10,
++	V4L2_PIX_FMT_SGRBG10, V4L2_PIX_FMT_SRGGB10, V4L2_PIX_FMT_SBGGR12,
++	V4L2_PIX_FMT_SGBRG12, V4L2_PIX_FMT_SGRBG12, V4L2_PIX_FMT_SRGGB12,
++	V4L2_PIX_FMT_YUYV,    V4L2_PIX_FMT_YVYU,    V4L2_PIX_FMT_UYVY,
++	V4L2_PIX_FMT_VYUY,    V4L2_PIX_FMT_HM12,    V4L2_PIX_FMT_NV12,
++	V4L2_PIX_FMT_NV21,    V4L2_PIX_FMT_YUV420,  V4L2_PIX_FMT_YVU420,
++	V4L2_PIX_FMT_NV16,    V4L2_PIX_FMT_NV61,    V4L2_PIX_FMT_YUV422P,
++	V4L2_PIX_FMT_RGB565,  V4L2_PIX_FMT_RGB565X, V4L2_PIX_FMT_JPEG,
+ };
+ 
+ static bool is_pixformat_valid(unsigned int pixformat)
+@@ -72,8 +54,8 @@ static bool is_pixformat_valid(unsigned
+ 	return false;
+ }
+ 
+-static struct v4l2_subdev *
+-sun6i_video_remote_subdev(struct sun6i_video *video, u32 *pad)
++static struct v4l2_subdev *sun6i_video_remote_subdev(struct sun6i_video *video,
++						     u32 *pad)
+ {
+ 	struct media_pad *remote;
+ 
+@@ -88,10 +70,8 @@ sun6i_video_remote_subdev(struct sun6i_v
+ 	return media_entity_to_v4l2_subdev(remote->entity);
+ }
+ 
+-static int sun6i_video_queue_setup(struct vb2_queue *vq,
+-				   unsigned int *nbuffers,
+-				   unsigned int *nplanes,
+-				   unsigned int sizes[],
++static int sun6i_video_queue_setup(struct vb2_queue *vq, unsigned int *nbuffers,
++				   unsigned int *nplanes, unsigned int sizes[],
+ 				   struct device *alloc_devs[])
+ {
+ 	struct sun6i_video *video = vb2_get_drv_priv(vq);
+@@ -110,7 +90,7 @@ static int sun6i_video_buffer_prepare(st
+ {
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct sun6i_csi_buffer *buf =
+-			container_of(vbuf, struct sun6i_csi_buffer, vb);
++		container_of(vbuf, struct sun6i_csi_buffer, vb);
+ 	struct sun6i_video *video = vb2_get_drv_priv(vb->vb2_queue);
+ 	unsigned long size = video->fmt.fmt.pix.sizeimage;
+ 
+@@ -168,8 +148,8 @@ static int sun6i_video_start_streaming(s
+ 
+ 	spin_lock_irqsave(&video->dma_queue_lock, flags);
+ 
+-	buf = list_first_entry(&video->dma_queue,
+-			       struct sun6i_csi_buffer, list);
++	buf = list_first_entry(&video->dma_queue, struct sun6i_csi_buffer,
++			       list);
+ 	buf->queued_to_csi = true;
+ 	sun6i_csi_update_buf_addr(video->csi, buf->dma_addr);
+ 
+@@ -210,7 +190,7 @@ stop_media_pipeline:
+ 	media_pipeline_stop(&video->vdev.entity);
+ clear_dma_queue:
+ 	spin_lock_irqsave(&video->dma_queue_lock, flags);
+-	list_for_each_entry(buf, &video->dma_queue, list)
++	list_for_each_entry (buf, &video->dma_queue, list)
+ 		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_QUEUED);
+ 	INIT_LIST_HEAD(&video->dma_queue);
+ 	spin_unlock_irqrestore(&video->dma_queue_lock, flags);
+@@ -235,7 +215,7 @@ static void sun6i_video_stop_streaming(s
+ 
+ 	/* Release all active buffers */
+ 	spin_lock_irqsave(&video->dma_queue_lock, flags);
+-	list_for_each_entry(buf, &video->dma_queue, list)
++	list_for_each_entry (buf, &video->dma_queue, list)
+ 		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+ 	INIT_LIST_HEAD(&video->dma_queue);
+ 	spin_unlock_irqrestore(&video->dma_queue_lock, flags);
+@@ -245,7 +225,7 @@ static void sun6i_video_buffer_queue(str
+ {
+ 	struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+ 	struct sun6i_csi_buffer *buf =
+-			container_of(vbuf, struct sun6i_csi_buffer, vb);
++		container_of(vbuf, struct sun6i_csi_buffer, vb);
+ 	struct sun6i_video *video = vb2_get_drv_priv(vb->vb2_queue);
+ 	unsigned long flags;
+ 
+@@ -263,8 +243,8 @@ void sun6i_video_frame_done(struct sun6i
+ 
+ 	spin_lock(&video->dma_queue_lock);
+ 
+-	buf = list_first_entry(&video->dma_queue,
+-			       struct sun6i_csi_buffer, list);
++	buf = list_first_entry(&video->dma_queue, struct sun6i_csi_buffer,
++			       list);
+ 	if (list_is_last(&buf->list, &video->dma_queue)) {
+ 		dev_dbg(video->csi->dev, "Frame dropped!\n");
+ 		goto unlock;
+@@ -304,13 +284,13 @@ unlock:
+ }
+ 
+ static const struct vb2_ops sun6i_csi_vb2_ops = {
+-	.queue_setup		= sun6i_video_queue_setup,
+-	.wait_prepare		= vb2_ops_wait_prepare,
+-	.wait_finish		= vb2_ops_wait_finish,
+-	.buf_prepare		= sun6i_video_buffer_prepare,
+-	.start_streaming	= sun6i_video_start_streaming,
+-	.stop_streaming		= sun6i_video_stop_streaming,
+-	.buf_queue		= sun6i_video_buffer_queue,
++	.queue_setup = sun6i_video_queue_setup,
++	.wait_prepare = vb2_ops_wait_prepare,
++	.wait_finish = vb2_ops_wait_finish,
++	.buf_prepare = sun6i_video_buffer_prepare,
++	.start_streaming = sun6i_video_start_streaming,
++	.stop_streaming = sun6i_video_stop_streaming,
++	.buf_queue = sun6i_video_buffer_queue,
+ };
+ 
+ static int vidioc_querycap(struct file *file, void *priv,
+@@ -349,15 +329,29 @@ static int vidioc_g_fmt_vid_cap(struct f
+ 	return 0;
+ }
+ 
+-static int sun6i_video_try_fmt(struct sun6i_video *video,
+-			       struct v4l2_format *f)
++static int sun6i_video_try_fmt(struct sun6i_video *video, struct v4l2_format *f)
+ {
+ 	struct v4l2_pix_format *pixfmt = &f->fmt.pix;
+ 	int bpp;
+-
++	// FIXME: needs to set_fmt
++	int ret;
++	struct v4l2_subdev_format sd_fmt = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++		.pad = 0,
++	};
++	struct v4l2_mbus_framefmt *mbus_fmt = &sd_fmt.format;
++	// struct v4l2_subdev_pad_config *cfg = v4l2_subdev_alloc_pad_config(video->subdev);
++	// struct v4l2_subdev *sd = video->subdev;
++
++	printk("[S_DEBUG] try getting subdev , pixfor %d = %d = %d = %d = %d\n",
++	       pixfmt->pixelformat, V4L2_PIX_FMT_YUYV, pixfmt->width,
++	       pixfmt->height, video->fmt.fmt.pix.width);
++	//
+ 	if (!is_pixformat_valid(pixfmt->pixelformat))
+ 		pixfmt->pixelformat = supported_pixformats[0];
+ 
++	// FIXME: need to sync to pix in driver, it won't update, fuxk
++
+ 	v4l_bound_align_image(&pixfmt->width, MIN_WIDTH, MAX_WIDTH, 1,
+ 			      &pixfmt->height, MIN_HEIGHT, MAX_WIDTH, 1, 1);
+ 
+@@ -373,6 +367,23 @@ static int sun6i_video_try_fmt(struct su
+ 	pixfmt->quantization = V4L2_QUANTIZATION_DEFAULT;
+ 	pixfmt->xfer_func = V4L2_XFER_FUNC_DEFAULT;
+ 
++	// FIXME: this driver didn't add set_fmt
++	v4l2_fill_mbus_format(mbus_fmt, pixfmt, MEDIA_BUS_FMT_YUYV8_2X8);
++
++	if (video->subdev) {
++		printk("[S_DEBUG] try call subdev: %s \n", video->subdev->name);
++		ret = v4l2_subdev_call(video->subdev, pad, set_fmt,
++				       video->subdev_cfg, &sd_fmt);
++
++		printk("[S_DEBUG] subdev set with get: %d \n", sd_fmt.format.width);
++		if (ret && ret != -ENOIOCTLCMD && ret != -ENODEV) {
++			printk("[S_DEBUG] try call subdev set with %d \n", ret);
++			return ret;
++		}
++	} else {
++		printk("[S_DEBUG] not subdev catched\n");
++	}
++
+ 	return 0;
+ }
+ 
+@@ -436,29 +447,29 @@ static int vidioc_s_input(struct file *f
+ }
+ 
+ static const struct v4l2_ioctl_ops sun6i_video_ioctl_ops = {
+-	.vidioc_querycap		= vidioc_querycap,
+-	.vidioc_enum_fmt_vid_cap	= vidioc_enum_fmt_vid_cap,
+-	.vidioc_g_fmt_vid_cap		= vidioc_g_fmt_vid_cap,
+-	.vidioc_s_fmt_vid_cap		= vidioc_s_fmt_vid_cap,
+-	.vidioc_try_fmt_vid_cap		= vidioc_try_fmt_vid_cap,
+-
+-	.vidioc_enum_input		= vidioc_enum_input,
+-	.vidioc_s_input			= vidioc_s_input,
+-	.vidioc_g_input			= vidioc_g_input,
+-
+-	.vidioc_reqbufs			= vb2_ioctl_reqbufs,
+-	.vidioc_querybuf		= vb2_ioctl_querybuf,
+-	.vidioc_qbuf			= vb2_ioctl_qbuf,
+-	.vidioc_expbuf			= vb2_ioctl_expbuf,
+-	.vidioc_dqbuf			= vb2_ioctl_dqbuf,
+-	.vidioc_create_bufs		= vb2_ioctl_create_bufs,
+-	.vidioc_prepare_buf		= vb2_ioctl_prepare_buf,
+-	.vidioc_streamon		= vb2_ioctl_streamon,
+-	.vidioc_streamoff		= vb2_ioctl_streamoff,
+-
+-	.vidioc_log_status		= v4l2_ctrl_log_status,
+-	.vidioc_subscribe_event		= v4l2_ctrl_subscribe_event,
+-	.vidioc_unsubscribe_event	= v4l2_event_unsubscribe,
++	.vidioc_querycap = vidioc_querycap,
++	.vidioc_enum_fmt_vid_cap = vidioc_enum_fmt_vid_cap,
++	.vidioc_g_fmt_vid_cap = vidioc_g_fmt_vid_cap,
++	.vidioc_s_fmt_vid_cap = vidioc_s_fmt_vid_cap,
++	.vidioc_try_fmt_vid_cap = vidioc_try_fmt_vid_cap,
++
++	.vidioc_enum_input = vidioc_enum_input,
++	.vidioc_s_input = vidioc_s_input,
++	.vidioc_g_input = vidioc_g_input,
++
++	.vidioc_reqbufs = vb2_ioctl_reqbufs,
++	.vidioc_querybuf = vb2_ioctl_querybuf,
++	.vidioc_qbuf = vb2_ioctl_qbuf,
++	.vidioc_expbuf = vb2_ioctl_expbuf,
++	.vidioc_dqbuf = vb2_ioctl_dqbuf,
++	.vidioc_create_bufs = vb2_ioctl_create_bufs,
++	.vidioc_prepare_buf = vb2_ioctl_prepare_buf,
++	.vidioc_streamon = vb2_ioctl_streamon,
++	.vidioc_streamoff = vb2_ioctl_streamoff,
++
++	.vidioc_log_status = v4l2_ctrl_log_status,
++	.vidioc_subscribe_event = v4l2_ctrl_subscribe_event,
++	.vidioc_unsubscribe_event = v4l2_event_unsubscribe,
+ };
+ 
+ /* -----------------------------------------------------------------------------
+@@ -520,12 +531,12 @@ static int sun6i_video_close(struct file
+ }
+ 
+ static const struct v4l2_file_operations sun6i_video_fops = {
+-	.owner		= THIS_MODULE,
+-	.open		= sun6i_video_open,
+-	.release	= sun6i_video_close,
+-	.unlocked_ioctl	= video_ioctl2,
+-	.mmap		= vb2_fop_mmap,
+-	.poll		= vb2_fop_poll
++	.owner = THIS_MODULE,
++	.open = sun6i_video_open,
++	.release = sun6i_video_close,
++	.unlocked_ioctl = video_ioctl2,
++	.mmap = vb2_fop_mmap,
++	.poll = vb2_fop_poll
+ };
+ 
+ /* -----------------------------------------------------------------------------
+@@ -536,7 +547,7 @@ static int sun6i_video_link_validate_get
+ {
+ 	if (is_media_entity_v4l2_subdev(pad->entity)) {
+ 		struct v4l2_subdev *sd =
+-				media_entity_to_v4l2_subdev(pad->entity);
++			media_entity_to_v4l2_subdev(pad->entity);
+ 
+ 		fmt->which = V4L2_SUBDEV_FORMAT_ACTIVE;
+ 		fmt->pad = pad->index;
+@@ -548,8 +559,8 @@ static int sun6i_video_link_validate_get
+ 
+ static int sun6i_video_link_validate(struct media_link *link)
+ {
+-	struct video_device *vdev = container_of(link->sink->entity,
+-						 struct video_device, entity);
++	struct video_device *vdev =
++		container_of(link->sink->entity, struct video_device, entity);
+ 	struct sun6i_video *video = video_get_drvdata(vdev);
+ 	struct v4l2_subdev_format source_fmt;
+ 	int ret;
+@@ -557,8 +568,8 @@ static int sun6i_video_link_validate(str
+ 	video->mbus_code = 0;
+ 
+ 	if (!media_entity_remote_pad(link->sink->entity->pads)) {
+-		dev_info(video->csi->dev,
+-			 "video node %s pad not connected\n", vdev->name);
++		dev_info(video->csi->dev, "video node %s pad not connected\n",
++			 vdev->name);
+ 		return -ENOLINK;
+ 	}
+ 
+@@ -566,15 +577,14 @@ static int sun6i_video_link_validate(str
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (!sun6i_csi_is_format_supported(video->csi,
+-					   video->fmt.fmt.pix.pixelformat,
+-					   source_fmt.format.code)) {
+-		dev_err(video->csi->dev,
+-			"Unsupported pixformat: 0x%x with mbus code: 0x%x!\n",
+-			video->fmt.fmt.pix.pixelformat,
+-			source_fmt.format.code);
+-		return -EPIPE;
+-	}
++	// if (!sun6i_csi_is_format_supported(video->csi,
++	// 				   video->fmt.fmt.pix.pixelformat,
++	// 				   source_fmt.format.code)) {
++	// 	dev_err(video->csi->dev,
++	// 		"Unsupported pixformat: 0x%x with mbus code: 0x%x!\n",
++	// 		video->fmt.fmt.pix.pixelformat, source_fmt.format.code);
++	// 	return -EPIPE;
++	// }
+ 
+ 	if (source_fmt.format.width != video->fmt.fmt.pix.width ||
+ 	    source_fmt.format.height != video->fmt.fmt.pix.height) {
+@@ -600,10 +610,10 @@ int sun6i_video_init(struct sun6i_video
+ 	struct video_device *vdev = &video->vdev;
+ 	struct vb2_queue *vidq = &video->vb2_vidq;
+ 	struct v4l2_format fmt = { 0 };
++
+ 	int ret;
+ 
+ 	video->csi = csi;
+-
+ 	/* Initialize the media entity... */
+ 	video->pad.flags = MEDIA_PAD_FL_SINK | MEDIA_PAD_FL_MUST_CONNECT;
+ 	vdev->entity.ops = &sun6i_video_media_ops;
+@@ -627,17 +637,17 @@ int sun6i_video_init(struct sun6i_video
+ 	sun6i_video_set_fmt(video, &fmt);
+ 
+ 	/* Initialize videobuf2 queue */
+-	vidq->type			= V4L2_BUF_TYPE_VIDEO_CAPTURE;
+-	vidq->io_modes			= VB2_MMAP | VB2_DMABUF;
+-	vidq->drv_priv			= video;
+-	vidq->buf_struct_size		= sizeof(struct sun6i_csi_buffer);
+-	vidq->ops			= &sun6i_csi_vb2_ops;
+-	vidq->mem_ops			= &vb2_dma_contig_memops;
+-	vidq->timestamp_flags		= V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+-	vidq->lock			= &video->lock;
++	vidq->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++	vidq->io_modes = VB2_MMAP | VB2_DMABUF;
++	vidq->drv_priv = video;
++	vidq->buf_struct_size = sizeof(struct sun6i_csi_buffer);
++	vidq->ops = &sun6i_csi_vb2_ops;
++	vidq->mem_ops = &vb2_dma_contig_memops;
++	vidq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
++	vidq->lock = &video->lock;
+ 	/* Make sure non-dropped frame */
+-	vidq->min_buffers_needed	= 3;
+-	vidq->dev			= csi->dev;
++	vidq->min_buffers_needed = 3;
++	vidq->dev = csi->dev;
+ 
+ 	ret = vb2_queue_init(vidq);
+ 	if (ret) {
+@@ -647,21 +657,21 @@ int sun6i_video_init(struct sun6i_video
+ 
+ 	/* Register video device */
+ 	strscpy(vdev->name, name, sizeof(vdev->name));
+-	vdev->release		= video_device_release_empty;
+-	vdev->fops		= &sun6i_video_fops;
+-	vdev->ioctl_ops		= &sun6i_video_ioctl_ops;
+-	vdev->vfl_type		= VFL_TYPE_VIDEO;
+-	vdev->vfl_dir		= VFL_DIR_RX;
+-	vdev->v4l2_dev		= &csi->v4l2_dev;
+-	vdev->queue		= vidq;
+-	vdev->lock		= &video->lock;
+-	vdev->device_caps	= V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE;
++	vdev->release = video_device_release_empty;
++	vdev->fops = &sun6i_video_fops;
++	vdev->ioctl_ops = &sun6i_video_ioctl_ops;
++	vdev->vfl_type = VFL_TYPE_VIDEO;
++	vdev->vfl_dir = VFL_DIR_RX;
++	vdev->v4l2_dev = &csi->v4l2_dev;
++	vdev->queue = vidq;
++	vdev->lock = &video->lock;
++	vdev->device_caps = V4L2_CAP_STREAMING | V4L2_CAP_VIDEO_CAPTURE;
+ 	video_set_drvdata(vdev, video);
+ 
+ 	ret = video_register_device(vdev, VFL_TYPE_VIDEO, -1);
+ 	if (ret < 0) {
+-		v4l2_err(&csi->v4l2_dev,
+-			 "video_register_device failed: %d\n", ret);
++		v4l2_err(&csi->v4l2_dev, "video_register_device failed: %d\n",
++			 ret);
+ 		goto clean_entity;
+ 	}
+ 
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_csi.c
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_csi.c
+@@ -27,18 +27,18 @@
+ #include "sun6i_csi.h"
+ #include "sun6i_csi_reg.h"
+ 
+-#define MODULE_NAME	"sun6i-csi"
++#define MODULE_NAME "sun6i-csi"
+ 
+ struct sun6i_csi_dev {
+-	struct sun6i_csi		csi;
+-	struct device			*dev;
++	struct sun6i_csi csi;
++	struct device *dev;
+ 
+-	struct regmap			*regmap;
+-	struct clk			*clk_mod;
+-	struct clk			*clk_ram;
+-	struct reset_control		*rstc_bus;
++	struct regmap *regmap;
++	struct clk *clk_mod;
++	struct clk *clk_ram;
++	struct reset_control *rstc_bus;
+ 
+-	int				planar_offset[3];
++	int planar_offset[3];
+ };
+ 
+ static inline struct sun6i_csi_dev *sun6i_csi_to_dev(struct sun6i_csi *csi)
+@@ -47,8 +47,8 @@ static inline struct sun6i_csi_dev *sun6
+ }
+ 
+ /* TODO add 10&12 bit YUV, RGB support */
+-bool sun6i_csi_is_format_supported(struct sun6i_csi *csi,
+-				   u32 pixformat, u32 mbus_code)
++bool sun6i_csi_is_format_supported(struct sun6i_csi *csi, u32 pixformat,
++				   u32 mbus_code)
+ {
+ 	struct sun6i_csi_dev *sdev = sun6i_csi_to_dev(csi);
+ 
+@@ -57,9 +57,9 @@ bool sun6i_csi_is_format_supported(struc
+ 	 * 8bit and 16bit bus width.
+ 	 * Identify the media bus format from device tree.
+ 	 */
+-	if ((sdev->csi.v4l2_ep.bus_type == V4L2_MBUS_PARALLEL
+-	     || sdev->csi.v4l2_ep.bus_type == V4L2_MBUS_BT656)
+-	     && sdev->csi.v4l2_ep.bus.parallel.bus_width == 16) {
++	if ((sdev->csi.v4l2_ep.bus_type == V4L2_MBUS_PARALLEL ||
++	     sdev->csi.v4l2_ep.bus_type == V4L2_MBUS_BT656) &&
++	    sdev->csi.v4l2_ep.bus.parallel.bus_width == 16) {
+ 		switch (pixformat) {
+ 		case V4L2_PIX_FMT_HM12:
+ 		case V4L2_PIX_FMT_NV12:
+@@ -76,7 +76,8 @@ bool sun6i_csi_is_format_supported(struc
+ 			case MEDIA_BUS_FMT_YVYU8_1X16:
+ 				return true;
+ 			default:
+-				dev_dbg(sdev->dev, "Unsupported mbus code: 0x%x\n",
++				dev_dbg(sdev->dev,
++					"Unsupported mbus code: 0x%x\n",
+ 					mbus_code);
+ 				break;
+ 			}
+@@ -241,9 +242,9 @@ static enum csi_output_fmt get_csi_outpu
+ {
+ 	bool buf_interlaced = false;
+ 
+-	if (field == V4L2_FIELD_INTERLACED
+-	    || field == V4L2_FIELD_INTERLACED_TB
+-	    || field == V4L2_FIELD_INTERLACED_BT)
++	if (field == V4L2_FIELD_INTERLACED ||
++	    field == V4L2_FIELD_INTERLACED_TB ||
++	    field == V4L2_FIELD_INTERLACED_BT)
+ 		buf_interlaced = true;
+ 
+ 	switch (pixformat) {
+@@ -362,7 +363,8 @@ static enum csi_input_seq get_csi_input_
+ 		return CSI_INPUT_SEQ_YUYV;
+ 
+ 	default:
+-		dev_warn(sdev->dev, "Unsupported pixformat: 0x%x, defaulting to YUYV\n",
++		dev_warn(sdev->dev,
++			 "Unsupported pixformat: 0x%x, defaulting to YUYV\n",
+ 			 pixformat);
+ 		break;
+ 	}
+@@ -379,9 +381,9 @@ static void sun6i_csi_setup_bus(struct s
+ 	u32 cfg;
+ 	bool input_interlaced = false;
+ 
+-	if (csi->config.field == V4L2_FIELD_INTERLACED
+-	    || csi->config.field == V4L2_FIELD_INTERLACED_TB
+-	    || csi->config.field == V4L2_FIELD_INTERLACED_BT)
++	if (csi->config.field == V4L2_FIELD_INTERLACED ||
++	    csi->config.field == V4L2_FIELD_INTERLACED_TB ||
++	    csi->config.field == V4L2_FIELD_INTERLACED_BT)
+ 		input_interlaced = true;
+ 
+ 	bus_width = endpoint->bus.parallel.bus_width;
+@@ -389,10 +391,9 @@ static void sun6i_csi_setup_bus(struct s
+ 	regmap_read(sdev->regmap, CSI_IF_CFG_REG, &cfg);
+ 
+ 	cfg &= ~(CSI_IF_CFG_CSI_IF_MASK | CSI_IF_CFG_MIPI_IF_MASK |
+-		 CSI_IF_CFG_IF_DATA_WIDTH_MASK |
+-		 CSI_IF_CFG_CLK_POL_MASK | CSI_IF_CFG_VREF_POL_MASK |
+-		 CSI_IF_CFG_HREF_POL_MASK | CSI_IF_CFG_FIELD_MASK |
+-		 CSI_IF_CFG_SRC_TYPE_MASK);
++		 CSI_IF_CFG_IF_DATA_WIDTH_MASK | CSI_IF_CFG_CLK_POL_MASK |
++		 CSI_IF_CFG_VREF_POL_MASK | CSI_IF_CFG_HREF_POL_MASK |
++		 CSI_IF_CFG_FIELD_MASK | CSI_IF_CFG_SRC_TYPE_MASK);
+ 
+ 	if (input_interlaced)
+ 		cfg |= CSI_IF_CFG_SRC_TYPE_INTERLACED;
+@@ -467,10 +468,9 @@ static void sun6i_csi_set_format(struct
+ 
+ 	regmap_read(sdev->regmap, CSI_CH_CFG_REG, &cfg);
+ 
+-	cfg &= ~(CSI_CH_CFG_INPUT_FMT_MASK |
+-		 CSI_CH_CFG_OUTPUT_FMT_MASK | CSI_CH_CFG_VFLIP_EN |
+-		 CSI_CH_CFG_HFLIP_EN | CSI_CH_CFG_FIELD_SEL_MASK |
+-		 CSI_CH_CFG_INPUT_SEQ_MASK);
++	cfg &= ~(CSI_CH_CFG_INPUT_FMT_MASK | CSI_CH_CFG_OUTPUT_FMT_MASK |
++		 CSI_CH_CFG_VFLIP_EN | CSI_CH_CFG_HFLIP_EN |
++		 CSI_CH_CFG_FIELD_SEL_MASK | CSI_CH_CFG_INPUT_SEQ_MASK);
+ 
+ 	val = get_csi_input_format(sdev, csi->config.code,
+ 				   csi->config.pixelformat);
+@@ -518,11 +518,9 @@ static void sun6i_csi_set_window(struct
+ 	}
+ 
+ 	regmap_write(sdev->regmap, CSI_CH_HSIZE_REG,
+-		     CSI_CH_HSIZE_HOR_LEN(hor_len) |
+-		     CSI_CH_HSIZE_HOR_START(0));
++		     CSI_CH_HSIZE_HOR_LEN(hor_len) | CSI_CH_HSIZE_HOR_START(0));
+ 	regmap_write(sdev->regmap, CSI_CH_VSIZE_REG,
+-		     CSI_CH_VSIZE_VER_LEN(height) |
+-		     CSI_CH_VSIZE_VER_START(0));
++		     CSI_CH_VSIZE_VER_LEN(height) | CSI_CH_VSIZE_VER_START(0));
+ 
+ 	planar_offset[0] = 0;
+ 	switch (config->pixelformat) {
+@@ -541,22 +539,22 @@ static void sun6i_csi_set_window(struct
+ 		bytesperline_y = width;
+ 		bytesperline_c = width / 2;
+ 		planar_offset[1] = bytesperline_y * height;
+-		planar_offset[2] = planar_offset[1] +
+-				bytesperline_c * height / 2;
++		planar_offset[2] =
++			planar_offset[1] + bytesperline_c * height / 2;
+ 		break;
+ 	case V4L2_PIX_FMT_YUV422P:
+ 		bytesperline_y = width;
+ 		bytesperline_c = width / 2;
+ 		planar_offset[1] = bytesperline_y * height;
+-		planar_offset[2] = planar_offset[1] +
+-				bytesperline_c * height;
++		planar_offset[2] = planar_offset[1] + bytesperline_c * height;
+ 		break;
+ 	default: /* raw */
+ 		dev_dbg(sdev->dev,
+ 			"Calculating pixelformat(0x%x)'s bytesperline as a packed format\n",
+ 			config->pixelformat);
+ 		bytesperline_y = (sun6i_csi_get_bpp(config->pixelformat) *
+-				  config->width) / 8;
++				  config->width) /
++				 8;
+ 		bytesperline_c = 0;
+ 		planar_offset[1] = -1;
+ 		planar_offset[2] = -1;
+@@ -565,7 +563,7 @@ static void sun6i_csi_set_window(struct
+ 
+ 	regmap_write(sdev->regmap, CSI_CH_BUF_LEN_REG,
+ 		     CSI_CH_BUF_LEN_BUF_LEN_C(bytesperline_c) |
+-		     CSI_CH_BUF_LEN_BUF_LEN_Y(bytesperline_y));
++			     CSI_CH_BUF_LEN_BUF_LEN_Y(bytesperline_y));
+ }
+ 
+ int sun6i_csi_update_config(struct sun6i_csi *csi,
+@@ -613,11 +611,10 @@ void sun6i_csi_set_stream(struct sun6i_c
+ 	regmap_write(regmap, CSI_CH_INT_STA_REG, 0xFF);
+ 	regmap_write(regmap, CSI_CH_INT_EN_REG,
+ 		     CSI_CH_INT_EN_HB_OF_INT_EN |
+-		     CSI_CH_INT_EN_FIFO2_OF_INT_EN |
+-		     CSI_CH_INT_EN_FIFO1_OF_INT_EN |
+-		     CSI_CH_INT_EN_FIFO0_OF_INT_EN |
+-		     CSI_CH_INT_EN_FD_INT_EN |
+-		     CSI_CH_INT_EN_CD_INT_EN);
++			     CSI_CH_INT_EN_FIFO2_OF_INT_EN |
++			     CSI_CH_INT_EN_FIFO1_OF_INT_EN |
++			     CSI_CH_INT_EN_FIFO0_OF_INT_EN |
++			     CSI_CH_INT_EN_FD_INT_EN | CSI_CH_INT_EN_CD_INT_EN);
+ 
+ 	regmap_update_bits(regmap, CSI_CAP_REG, CSI_CAP_CH0_VCAP_ON,
+ 			   CSI_CAP_CH0_VCAP_ON);
+@@ -647,26 +644,45 @@ static int sun6i_csi_link_entity(struct
+ 	sink = &csi->video.vdev.entity;
+ 	sink_pad = &csi->video.pad;
+ 
+-	dev_dbg(csi->dev, "creating %s:%u -> %s:%u link\n",
+-		entity->name, src_pad_index, sink->name, sink_pad->index);
+-	ret = media_create_pad_link(entity, src_pad_index, sink,
+-				    sink_pad->index,
+-				    MEDIA_LNK_FL_ENABLED |
+-				    MEDIA_LNK_FL_IMMUTABLE);
++	dev_dbg(csi->dev, "creating %s:%u -> %s:%u link\n", entity->name,
++		src_pad_index, sink->name, sink_pad->index);
++	ret = media_create_pad_link(
++		entity, src_pad_index, sink, sink_pad->index,
++		MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+ 	if (ret < 0) {
+ 		dev_err(csi->dev, "failed to create %s:%u -> %s:%u link\n",
+-			entity->name, src_pad_index,
+-			sink->name, sink_pad->index);
++			entity->name, src_pad_index, sink->name,
++			sink_pad->index);
+ 		return ret;
+ 	}
+ 
+ 	return 0;
+ }
+ 
++static int sun6i_subdev_async_bound(struct v4l2_async_notifier *notifier,
++				    struct v4l2_subdev *subdev,
++				    struct v4l2_async_subdev *asd)
++{
++	struct v4l2_device *v4dev = notifier->v4l2_dev;
++	struct sun6i_csi *vdev =
++		container_of(v4dev, struct sun6i_csi, v4l2_dev);
++
++	if (vdev->video.subdev) {
++		return 0;
++	}
++
++	vdev->video.subdev = subdev;
++	vdev->video.subdev_cfg = v4l2_subdev_alloc_pad_config(vdev->video.subdev);
++
++	printk("[S_DEBUG] subdev getted %s", subdev->name);
++
++	return 0;
++}
++
+ static int sun6i_subdev_notify_complete(struct v4l2_async_notifier *notifier)
+ {
+-	struct sun6i_csi *csi = container_of(notifier, struct sun6i_csi,
+-					     notifier);
++	struct sun6i_csi *csi =
++		container_of(notifier, struct sun6i_csi, notifier);
+ 	struct v4l2_device *v4l2_dev = &csi->v4l2_dev;
+ 	struct v4l2_subdev *sd;
+ 	int ret;
+@@ -690,6 +706,7 @@ static int sun6i_subdev_notify_complete(
+ 
+ static const struct v4l2_async_notifier_operations sun6i_csi_async_ops = {
+ 	.complete = sun6i_subdev_notify_complete,
++	.bound = sun6i_subdev_async_bound,
+ };
+ 
+ static int sun6i_csi_fwnode_parse(struct device *dev,
+@@ -759,10 +776,9 @@ static int sun6i_csi_v4l2_init(struct su
+ 	if (ret)
+ 		goto unreg_v4l2;
+ 
+-	ret = v4l2_async_notifier_parse_fwnode_endpoints(csi->dev,
+-							 &csi->notifier,
+-							 sizeof(struct v4l2_async_subdev),
+-							 sun6i_csi_fwnode_parse);
++	ret = v4l2_async_notifier_parse_fwnode_endpoints(
++		csi->dev, &csi->notifier, sizeof(struct v4l2_async_subdev),
++		sun6i_csi_fwnode_parse);
+ 	if (ret)
+ 		goto clean_video;
+ 
+@@ -823,10 +839,10 @@ static irqreturn_t sun6i_csi_isr(int irq
+ }
+ 
+ static const struct regmap_config sun6i_csi_regmap_config = {
+-	.reg_bits       = 32,
+-	.reg_stride     = 4,
+-	.val_bits       = 32,
+-	.max_register	= 0x9c,
++	.reg_bits = 32,
++	.reg_stride = 4,
++	.val_bits = 32,
++	.max_register = 0x9c,
+ };
+ 
+ static int sun6i_csi_resource_request(struct sun6i_csi_dev *sdev,
+@@ -929,11 +945,21 @@ static int sun6i_csi_remove(struct platf
+ }
+ 
+ static const struct of_device_id sun6i_csi_of_match[] = {
+-	{ .compatible = "allwinner,sun6i-a31-csi", },
+-	{ .compatible = "allwinner,sun8i-a83t-csi", },
+-	{ .compatible = "allwinner,sun8i-h3-csi", },
+-	{ .compatible = "allwinner,sun8i-v3s-csi", },
+-	{ .compatible = "allwinner,sun50i-a64-csi", },
++	{
++		.compatible = "allwinner,sun6i-a31-csi",
++	},
++	{
++		.compatible = "allwinner,sun8i-a83t-csi",
++	},
++	{
++		.compatible = "allwinner,sun8i-h3-csi",
++	},
++	{
++		.compatible = "allwinner,sun8i-v3s-csi",
++	},
++	{
++		.compatible = "allwinner,sun50i-a64-csi",
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, sun6i_csi_of_match);
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.h
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.h
+@@ -14,19 +14,23 @@
+ struct sun6i_csi;
+ 
+ struct sun6i_video {
+-	struct video_device		vdev;
+-	struct media_pad		pad;
+-	struct sun6i_csi		*csi;
+-
+-	struct mutex			lock;
+-
+-	struct vb2_queue		vb2_vidq;
+-	spinlock_t			dma_queue_lock;
+-	struct list_head		dma_queue;
+-
+-	unsigned int			sequence;
+-	struct v4l2_format		fmt;
+-	u32				mbus_code;
++	struct video_device vdev;
++	struct media_pad pad;
++	struct sun6i_csi *csi;
++
++	struct mutex lock;
++
++	struct vb2_queue vb2_vidq;
++	spinlock_t dma_queue_lock;
++	struct list_head dma_queue;
++
++	unsigned int sequence;
++	struct v4l2_format fmt;
++	u32 mbus_code;
++
++	struct v4l2_subdev_pad_config *subdev_cfg; 
++	struct v4l2_subdev *subdev;
++	struct v4l2_subdev_state *sensor_state;
+ };
+ 
+ int sun6i_video_init(struct sun6i_video *video, struct sun6i_csi *csi,

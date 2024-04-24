@@ -1,0 +1,318 @@
+--- a/drivers/media/Kconfig
++++ b/drivers/media/Kconfig
+@@ -255,6 +255,7 @@ config MEDIA_ATTACH
+ 	default MODULES
+ 
+ source "drivers/media/i2c/Kconfig"
++source "drivers/media/uart/Kconfig"
+ source "drivers/media/spi/Kconfig"
+ source "drivers/media/tuners/Kconfig"
+ source "drivers/media/dvb-frontends/Kconfig"
+--- a/drivers/media/Makefile
++++ b/drivers/media/Makefile
+@@ -29,6 +29,6 @@ obj-$(CONFIG_CEC_CORE) += cec/
+ # Finally, merge the drivers that require the core
+ #
+ 
+-obj-y += common/ platform/ pci/ usb/ mmc/ firewire/ spi/ test-drivers/
++obj-y += common/ platform/ pci/ usb/ mmc/ firewire/ spi/ test-drivers/ uart/
+ obj-$(CONFIG_VIDEO_DEV) += radio/
+ 
+--- /dev/null
++++ b/drivers/media/uart/HKVison.c
+@@ -0,0 +1,267 @@
++#include <linux/clk.h>
++#include <linux/clk-provider.h>
++#include <linux/clkdev.h>
++#include <linux/ctype.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/gpio/consumer.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/of_device.h>
++#include <linux/regulator/consumer.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++
++#include <media/v4l2-async.h>
++#include <media/v4l2-ctrls.h>
++#include <media/v4l2-device.h>
++#include <media/v4l2-event.h>
++#include <media/v4l2-fwnode.h>
++#include <media/v4l2-subdev.h>
++
++#include <asm/termbits.h>
++#include <linux/pm.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/of.h>
++#include <linux/pm_runtime.h>
++#include <linux/sched.h>
++#include <linux/serdev.h>
++#include <linux/dev_printk.h>
++
++struct hkv_serial {
++	struct media_pad mpad;
++	struct v4l2_subdev subdevNode;
++	struct serdev_device *serdev;
++	struct v4l2_fwnode_endpoint ep;
++};
++
++static inline struct hkv_serial *to_hkv_serial(struct v4l2_subdev *sd)
++{
++	return container_of(sd, struct hkv_serial, subdevNode);
++}
++
++//=================V4L2 LEVEL==============================//
++static int hkv_get_fmt(struct v4l2_subdev *sd,
++		       struct v4l2_subdev_pad_config *cfg,
++		       struct v4l2_subdev_format *format)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 get fmt\n");
++
++	return 0;
++}
++
++static int hkv_set_fmt(struct v4l2_subdev *sd,
++		       struct v4l2_subdev_pad_config *cfg,
++		       struct v4l2_subdev_format *format)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 set fmt\n");
++
++	return 0;
++}
++
++static int hkv_s_power(struct v4l2_subdev *sd, int on)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 s power called\n");
++
++	return 0;
++}
++
++static int hkv_s_stream(struct v4l2_subdev *sd, int enable)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 s stream called\n");
++
++	return 0;
++}
++
++static int hkv_g_frame_interval(struct v4l2_subdev *sd,
++				struct v4l2_subdev_frame_interval *fi)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 g frame int called\n");
++
++	return 0;
++}
++
++static int hkv_s_frame_interval(struct v4l2_subdev *sd,
++				struct v4l2_subdev_frame_interval *fi)
++{
++	struct hkv_serial *hkvser;
++	hkvser = to_hkv_serial(sd);
++	dev_info(&hkvser->serdev->dev, "HKV V4l2 s frame int called\n");
++
++	return 0;
++}
++
++static const struct v4l2_subdev_core_ops hkv_core_ops = {
++	.s_power = hkv_s_power,
++	.log_status = v4l2_ctrl_subdev_log_status,
++	.subscribe_event = v4l2_ctrl_subdev_subscribe_event,
++	.unsubscribe_event = v4l2_event_subdev_unsubscribe,
++};
++
++static const struct v4l2_subdev_video_ops hkv_video_ops = {
++	.g_frame_interval = hkv_g_frame_interval,
++	.s_frame_interval = hkv_s_frame_interval,
++	.s_stream = hkv_s_stream,
++};
++
++static const struct v4l2_subdev_pad_ops hkv_pad_ops = {
++	// .enum_mbus_code = ov5640_enum_mbus_code,
++	.get_fmt = hkv_get_fmt,
++	.set_fmt = hkv_set_fmt,
++	// .enum_frame_size = ov5640_enum_frame_size,
++	// .enum_frame_interval = ov5640_enum_frame_interval,
++};
++
++static const struct v4l2_subdev_ops hkv_subdev_ops = {
++	.core = &hkv_core_ops,
++	.video = &hkv_video_ops,
++	.pad = &hkv_pad_ops,
++};
++
++//=================DRIVER LEVEL=============================//
++static int hkv_serial_receive_buf(struct serdev_device *sdev,
++				  const unsigned char *buf, size_t count)
++{
++	struct hkv_serial *hkvs;
++	hkvs = serdev_device_get_drvdata(sdev);
++
++	dev_info(&sdev->dev, "HKV uart data incomming size: %d ,data : %.*s \n",
++		 count, count, (char *)buf);
++
++	return count;
++}
++
++static const struct serdev_device_ops hkv_serial_serdev_ops = {
++	.receive_buf = hkv_serial_receive_buf,
++	.write_wakeup = serdev_device_write_wakeup,
++};
++
++static int hkv_probe(struct serdev_device *sdev)
++{
++	int ret;
++	struct v4l2_ctrl_handler *hdl;
++	struct fwnode_handle *endpoint;
++	struct hkv_serial *hkvser = kzalloc(sizeof(*hkvser), GFP_KERNEL);
++	//
++	serdev_device_set_drvdata(sdev, hkvser);
++	serdev_device_set_client_ops(sdev, &hkv_serial_serdev_ops);
++	ret = serdev_device_open(sdev);
++	if (!ret) {
++		if (serdev_device_set_baudrate(sdev, 115200) == 115200) {
++			serdev_device_set_flow_control(sdev, false);
++			serdev_device_set_rts(sdev, false);
++			serdev_device_set_parity(sdev, SERDEV_PARITY_NONE);
++
++			dev_info(&sdev->dev, "HKV uart init complete\n");
++		} else
++			dev_err(&sdev->dev, "HKV uart set baudrate failed");
++	} else
++		dev_err(&sdev->dev, "HKV uart open failed %d\n", ret);
++
++	// TODO: before v4l2 we must get fwnode first
++	dev_info(&sdev->dev, "HKV try get fwnode ....\n");
++	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(&sdev->dev), NULL);
++	if (!endpoint) {
++		dev_err(&sdev->dev, "endpoint node not found\n");
++		return -EINVAL;
++	}
++
++	ret = v4l2_fwnode_endpoint_parse(endpoint, &hkvser->ep);
++	fwnode_handle_put(endpoint);
++	if (ret) {
++		dev_err(&sdev->dev, "Could not parse endpoint\n");
++		return ret;
++	}
++
++	if (hkvser->ep.bus_type != V4L2_MBUS_PARALLEL &&
++	    hkvser->ep.bus_type != V4L2_MBUS_CSI2_DPHY &&
++	    hkvser->ep.bus_type != V4L2_MBUS_BT656) {
++		dev_err(&sdev->dev, "Unsupported bus type %d\n",
++			hkvser->ep.bus_type);
++		return -EINVAL;
++	}
++
++	// TODO: add v4l2-subdev and v4l2fwnode function
++	v4l2_subdev_init(&hkvser->subdevNode, &hkv_subdev_ops);
++	// TODO: add v4l-subdev to sys path
++	hkvser->subdevNode.flags |=
++		V4L2_SUBDEV_FL_HAS_DEVNODE | V4L2_SUBDEV_FL_HAS_EVENTS;
++	hkvser->subdevNode.owner = sdev->dev.driver->owner;
++	hkvser->subdevNode.dev = &sdev->dev;
++	v4l2_set_subdevdata(&hkvser->subdevNode, &sdev->dev);
++	dev_set_drvdata(&sdev->dev, &hkvser->subdevNode);
++
++#if defined(CONFIG_MEDIA_CONTROLLER)
++	// TODO: what is media pad?
++	hkvser->mpad.flags = MEDIA_PAD_FL_SOURCE;
++	hkvser->subdevNode.entity.function = MEDIA_ENT_F_CAM_SENSOR;
++	ret = media_entity_pads_init(&hkvser->subdevNode.entity, 1,
++				     &hkvser->mpad);
++	if (ret)
++		return ret;
++#endif
++
++	hdl = hkvser->subdevNode.ctrl_handler;
++	v4l2_ctrl_handler_init(hdl, 32);
++
++	ret = v4l2_async_register_subdev_sensor_common(&hkvser->subdevNode);
++	if (ret < 0) {
++		dev_err(&sdev->dev, "Error registering subdevice nodes");
++		return -EINVAL;
++	}
++	//
++	// v4l2_ctrl_handler_setup(hdl);
++	// if (ret < 0) {
++	// 	dev_err(&sdev->dev, "Error registering ctrl");
++	// 	return -EINVAL;
++	// }
++	//
++	dev_info(&sdev->dev, "if complete, it should show up here");
++	return ret;
++}
++
++static void hkv_remove(struct serdev_device *sdev)
++{
++	struct hkv_serial *hkvser = serdev_device_get_drvdata(sdev);
++
++	media_entity_cleanup(&hkvser->subdevNode.entity);
++	serdev_device_close(sdev);
++	kfree(hkvser);
++
++	dev_info(&sdev->dev, "HKV uart deinited\n");
++}
++
++static const struct of_device_id hkv_of_match[] = { {
++	.compatible = "hkv,hkv-uart",
++} };
++
++// static const struct i2c_device_id ov5640_id[] = {
++// 	{"ov5640", 0},
++// 	{},
++// };
++
++static struct serdev_device_driver hkv_driver = {
++	.driver	= {
++		.name		= "hkv-uart",
++		.of_match_table	= hkv_of_match,
++	},
++	.probe	= hkv_probe,
++	.remove	= hkv_remove,
++};
++
++MODULE_DEVICE_TABLE(of, hkv_driver);
++module_serdev_device_driver(hkv_driver);
++
++MODULE_DESCRIPTION("HKVision Camera Subdev Driver");
++MODULE_LICENSE("GPL");
+\ No newline at end of file
+--- /dev/null
++++ b/drivers/media/uart/Kconfig
+@@ -0,0 +1,19 @@
++
++if VIDEO_V4L2
++
++menu "Camera UART sensor devices"
++	visible if MEDIA_CAMERA_SUPPORT
++	
++config HKV_THERMAL_CAMERA
++	tristate "HKVison thermal cametra support"
++	depends on OF
++	depends on GPIOLIB && VIDEO_V4L2 && SERIAL_DEV_BUS
++	select MEDIA_CONTROLLER
++	select VIDEO_V4L2_SUBDEV_API
++	select V4L2_FWNODE
++	help
++	  This is a Video4Linux2 sensor driver for the HKVison
++
++endmenu
++
++endif
+--- /dev/null
++++ b/drivers/media/uart/Makefile
+@@ -0,0 +1 @@
++obj-$(CONFIG_HKV_THERMAL_CAMERA) += HKVison.o
+\ No newline at end of file

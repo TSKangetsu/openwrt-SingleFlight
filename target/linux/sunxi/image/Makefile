@@ -15,6 +15,7 @@ KERNEL_LOADADDR:=0x40008000
 define Build/Compile
 	@cp $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s-licheepi-nano.dts $(LINUX_DIR)/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano.dts
 	@cp $(TOPDIR)/target/linux/sunxi/dts/suniv-f1c100s.dtsi $(LINUX_DIR)/arch/arm/boot/dts/suniv-f1c100s.dtsi
+	@cp $(TOPDIR)/target/linux/sunxi/dts/sun8i-h3-nanopi-neo-air.dts $(LINUX_DIR)/arch/arm/boot/dts/sun8i-h3-nanopi-neo-air.dts
 endef
 
 define Build/sunxi-sdcard
@@ -57,7 +58,7 @@ define Device/Default
   KERNEL_NAME := zImage
   KERNEL := kernel-bin | uImage none
   IMAGES := sdcard.img.gz
-  IMAGE/sdcard.img.gz := sunxi-sdcard-zImage | append-metadata | gzip
+  IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
   SUNXI_DTS_DIR :=
   SUNXI_DTS = $$(SUNXI_DTS_DIR)$$(SOC)-$(lastword $(subst _, ,$(1)))
 endef
