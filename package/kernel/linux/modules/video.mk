@@ -395,7 +395,7 @@ define KernelPackage/video-core
   TITLE=Video4Linux support
   DEPENDS:=+PACKAGE_kmod-i2c-core:kmod-i2c-core
   KCONFIG:= \
-	CONFIG_MEDIA_SUPPORT \
+  CONFIG_MEDIA_SUPPORT=y \
 	CONFIG_MEDIA_CAMERA_SUPPORT=y \
 	CONFIG_VIDEO_DEV \
 	CONFIG_VIDEO_ADV_DEBUG=y \
