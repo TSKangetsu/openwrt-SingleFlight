@@ -1,0 +1,20 @@
+--- a/arch/arm/mach-sunxi/clock_sun6i.c
++++ b/arch/arm/mach-sunxi/clock_sun6i.c
+@@ -86,11 +86,14 @@ void clock_init_uart(void)
+ 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+ 
+ 	/* uart clock source is apb2 */
+-	writel(APB2_CLK_SRC_OSC24M|
+-	       APB2_CLK_RATE_N_1|
+-	       APB2_CLK_RATE_M(1),
++	// apb2 turbo to 100mhz using pll6 600 / 2 / 3
++	writel(APB2_CLK_SRC_PLL6|
++	       APB2_CLK_RATE_N_2|
++	       APB2_CLK_RATE_M(3),
+ 	       &ccm->apb2_div);
+ 
++
++
+ 	/* open the clock for uart */
+ 	setbits_le32(&ccm->apb2_gate,
+ 		     CLK_GATE_OPEN << (APB2_GATE_UART_SHIFT +
