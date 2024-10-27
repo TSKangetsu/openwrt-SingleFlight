@@ -401,6 +401,7 @@ define KernelPackage/video-core
 	CONFIG_VIDEO_DEV \
 	CONFIG_VIDEO_ADV_DEBUG=y \
 	CONFIG_MEDIA_CONTROLLER=y \
+  CONFIG_MEDIA_CONTROLLER_DVB=n \
   CONFIG_V4L2_FWNODE \
 	CONFIG_V4L_PLATFORM_DRIVERS=y
   FILES:= \
@@ -430,17 +431,23 @@ endef
 
 define KernelPackage/video-videobuf2
   TITLE:=videobuf2 lib
-  DEPENDS:=+kmod-dma-buf
+  DEPENDS:=+kmod-dma-buf +kmod-video-core
   KCONFIG:= \
 	CONFIG_VIDEOBUF2_CORE \
+  CONFIG_V4L_MEM2MEM_DRIVERS=y \
+  CONFIG_VIDEO_MEM2MEM_DEINTERLACE=y \
+  CONFIG_V4L2_MEM2MEM_DEV=y \
 	CONFIG_VIDEOBUF2_MEMOPS \
+  CONFIG_VIDEOBUF2_VMALLOC \
 	VIDEOBUF2_DMA_CONTIG
   FILES:= \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-common.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-v4l2.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-memops.ko \
-	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-dma-contig.ko
-  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-dma-contig)
+  $(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-vmalloc.ko \
+	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-dma-contig.ko \
+  $(LINUX_DIR)/drivers/media/v4l2-core/v4l2-mem2mem.ko
+  AUTOLOAD:=$(call AutoLoad,65,videobuf2-core videobuf-v4l2 videobuf2-memops videobuf2-dma-contig videobuf2-vmalloc v4l2-mem2mem)
   $(call AddDepends/video)
 endef
 

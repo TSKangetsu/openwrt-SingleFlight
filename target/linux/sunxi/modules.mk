@@ -6,8 +6,9 @@ define KernelPackage/sunxi-csi
     TITLE:=SUN6I SoC CSI
     DEPENDS:=@TARGET_sunxi +kmod-video-videobuf2
     KCONFIG:= CONFIG_VIDEO_SUN4I_CSI=n \
-              CONFIG_VIDEO_SUN6I_CSI \
-              CONFIG_MEDIA_CONTROLLER_DVB=n
+              CONFIG_VIDEO_SUN8I_DEINTERLACE=n \
+              CONFIG_VIDEO_SUN8I_ROTATE=n \
+              CONFIG_VIDEO_SUN6I_CSI
               
     FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
     AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
