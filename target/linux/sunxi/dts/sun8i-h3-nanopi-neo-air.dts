@@ -83,7 +83,7 @@
         cma_pool: cma@43c00000 {
         	compatible = "shared-dma-pool";
         	reusable;
-        	reg = <0x57c00000 0x6000000>;
+            size = <0x06000000>; // 96MiB, just let cma driver auto done this job
         	linux,cma-default;
         	status = "okay";
         };
@@ -112,7 +112,10 @@
 	};
 };
 
-
+&ccu {
+    // APB2 Configuration Register, see datasheet 0x0058
+    apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
+};
 
 &syscon {
     compatible = "allwinner,sun8i-h3-system-control","syscon"; //add syscon module load
@@ -270,10 +273,6 @@
 
 &i2c2_pins {
 	bias-pull-up;
-};
-
-&usbphy {
-    status = "okay";
 };
 
 &ehci1 {

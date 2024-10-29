@@ -1,0 +1,34 @@
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
+@@ -46,6 +46,7 @@ static SUNXI_CCU_NKMP_WITH_GATE_LOCK(pll
+  * match the clock names.
+  */
+ #define SUN8I_H3_PLL_AUDIO_REG	0x008
++#define SUN8I_H3_APB2_CFG_REG 0x0058
+ 
+ static struct ccu_sdm_setting pll_audio_sdm_table[] = {
+ 	{ .rate = 22579200, .pattern = 0xc0010d84, .m = 8, .n = 7 },
+@@ -1143,6 +1144,9 @@ static void __init sunxi_h3_h5_ccu_init(
+ 	void __iomem *reg;
+ 	u32 val;
+ 
++	int ret;
++	int apb2_reg;
++	
+ 	reg = of_io_request_and_map(node, 0, of_node_full_name(node));
+ 	if (IS_ERR(reg)) {
+ 		pr_err("%pOF: Could not map the clock registers\n", node);
+@@ -1154,6 +1158,13 @@ static void __init sunxi_h3_h5_ccu_init(
+ 	val &= ~GENMASK(19, 16);
+ 	writel(val | (0 << 16), reg + SUN8I_H3_PLL_AUDIO_REG);
+ 
++	/* TODO: add ability to get clock info from dts, now only APB2 */
++	ret = of_property_read_u32(node, "apb2_reg", &apb2_reg);
++	/* Keep uboot default set if not */
++	if (!ret) {
++		writel(apb2_reg, reg + SUN8I_H3_APB2_CFG_REG);
++	}
++
+ 	sunxi_ccu_probe(node, reg, desc);
+ 
+ 	/* Gate then ungate PLL CPU after any rate changes */
