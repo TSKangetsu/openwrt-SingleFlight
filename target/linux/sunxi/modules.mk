@@ -2,9 +2,31 @@
 # 
 # Copyright (C) 2013-2016 OpenWrt.org
 
+define KernelPackage/usb-sunxi-mbus
+    SUBMENU:=$(USB_MENU)
+    TITLE:=SUN6I SoC MBUS
+    DEPENDS:=@TARGET_sunxi +kmod-usb-gadget +kmod-usb-dwc2
+    KCONFIG:=CONFIG_USB_PHY=y \
+             CONFIG_USB_GADGET_VBUS_DRAW=500 \
+             CONFIG_USB_DWC2_DUAL_ROLE=y \
+             CONFIG_USB_MUSB_HDRC \
+             CONFIG_USB_MUSB_DUAL_ROLE=y \
+             CONFIG_USB_MUSB_SUNXI
+    FILES:=$(LINUX_DIR)/drivers/usb/musb/sunxi.ko \
+           $(LINUX_DIR)/drivers/usb/musb/musb_hdrc.ko
+    AUTOLOAD:=$(call AutoLoad,50,musb_hdrc sunxi)
+endef
+
+define KernelPackage/usb-sunxi-mbus/description
+ Support for the AllWinner sunXi MBUS Driver
+endef
+
+$(eval $(call KernelPackage,usb-sunxi-mbus))
+
 define KernelPackage/sunxi-csi
     TITLE:=SUN6I SoC CSI
-    DEPENDS:=@TARGET_sunxi +kmod-video-videobuf2
+    SUBMENU:=$(VIDEO_MENU)
+    DEPENDS:=@TARGET_sunxi +kmod-video-core +kmod-video-videobuf2
     KCONFIG:= CONFIG_VIDEO_SUN4I_CSI=n \
               CONFIG_VIDEO_SUN8I_DEINTERLACE=n \
               CONFIG_VIDEO_SUN8I_ROTATE=n \
@@ -12,7 +34,6 @@ define KernelPackage/sunxi-csi
               
     FILES:=$(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
     AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
-	$(call AddDepends/camera)
 endef
 
 define KernelPackage/sunxi-csi/description

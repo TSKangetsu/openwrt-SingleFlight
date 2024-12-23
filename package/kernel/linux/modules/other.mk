@@ -151,6 +151,20 @@ define KernelPackage/dma-buf
 endef
 $(eval $(call KernelPackage,dma-buf))
 
+define KernelPackage/cma-buf
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=CMA shared buffer support
+  HIDDEN:=1
+  KCONFIG:=CONFIG_CMA=y \
+      CONFIG_CMA_DEBUG=n \
+			CONFIG_CMA_DEBUGFS=n \
+			CONFIG_DMA_CMA=y \
+			CONFIG_CMA_ALIGNMENT=8 \
+			CONFIG_CMA_AREAS=7 \
+			CONFIG_CMA_SIZE_MBYTES=0 \
+			CONFIG_CMA_SIZE_SEL_MBYTES=y
+endef
+$(eval $(call KernelPackage,cma-buf))
 
 define KernelPackage/eeprom-93cx6
   SUBMENU:=$(OTHER_MENU)

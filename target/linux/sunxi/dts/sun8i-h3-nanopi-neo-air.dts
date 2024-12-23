@@ -275,6 +275,19 @@
 	bias-pull-up;
 };
 
+&usb_otg {
+    dr_mode = "otg";
+    status = "okay";
+};
+
+&ehci0 {
+    status = "okay";
+};
+
+&ohci0 {
+    status = "okay";
+};
+
 &ehci1 {
     status = "okay";
 };

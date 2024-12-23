@@ -437,9 +437,10 @@ define KernelPackage/video-videobuf2
   CONFIG_V4L_MEM2MEM_DRIVERS=y \
   CONFIG_VIDEO_MEM2MEM_DEINTERLACE=y \
   CONFIG_V4L2_MEM2MEM_DEV=y \
+  CONFIG_FRAME_VECTOR=y \
 	CONFIG_VIDEOBUF2_MEMOPS \
   CONFIG_VIDEOBUF2_VMALLOC \
-	VIDEOBUF2_DMA_CONTIG
+	CONFIG_VIDEOBUF2_DMA_CONTIG
   FILES:= \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-common.ko \
 	$(LINUX_DIR)/drivers/media/common/videobuf2/videobuf2-v4l2.ko \
