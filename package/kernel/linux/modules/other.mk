@@ -156,13 +156,16 @@ define KernelPackage/cma-buf
   TITLE:=CMA shared buffer support
   HIDDEN:=1
   KCONFIG:=CONFIG_CMA=y \
+  		CONFIG_CMA_AREAS=7 \
       CONFIG_CMA_DEBUG=n \
 			CONFIG_CMA_DEBUGFS=n \
 			CONFIG_DMA_CMA=y \
-			CONFIG_CMA_ALIGNMENT=8 \
-			CONFIG_CMA_AREAS=7 \
 			CONFIG_CMA_SIZE_MBYTES=0 \
-			CONFIG_CMA_SIZE_SEL_MBYTES=y
+      CONFIG_CMA_SIZE_SEL_MBYTES=y \
+      CONFIG_CMA_SIZE_SEL_PERCENTAGE=n \
+      CONFIG_CMA_SIZE_SEL_MIN=n \
+      CONFIG_CMA_SIZE_SEL_MAX=n \
+      CONFIG_CMA_ALIGNMENT=8
 endef
 $(eval $(call KernelPackage,cma-buf))
 
