@@ -122,6 +122,37 @@ endef
 
 $(eval $(call KernelPackage,usb-lib-composite))
 
+define KernelPackage/usb-configfs
+  TITLE:=usb config fs function
+  KCONFIG:=CONFIG_USB_CONFIGFS=y \
+           CONFIG_USB_CONFIGFS_SERIAL=n \
+           CONFIG_USB_CONFIGFS_ACM=n \
+           CONFIG_USB_CONFIGFS_OBEX=n \
+           CONFIG_USB_CONFIGFS_NCM=y \
+           CONFIG_USB_CONFIGFS_ECM=n \
+           CONFIG_USB_CONFIGFS_ECM_SUBSET=n \
+           CONFIG_USB_CONFIGFS_RNDIS=y \
+           CONFIG_USB_CONFIGFS_EEM=n \
+           CONFIG_USB_CONFIGFS_MASS_STORAGE=n \
+           CONFIG_USB_CONFIGFS_F_LB_SS=n \
+           CONFIG_USB_CONFIGFS_F_FS=n \
+           CONFIG_USB_CONFIGFS_F_UAC1=n \
+           CONFIG_USB_CONFIGFS_F_UAC1_LEGACY=n \
+           CONFIG_USB_CONFIGFS_F_UAC2=n \
+           CONFIG_USB_CONFIGFS_F_MIDI=n \
+           CONFIG_USB_CONFIGFS_F_HID=n \
+           CONFIG_USB_CONFIGFS_F_UVC=y \
+           CONFIG_USB_CONFIGFS_F_PRINTER=n
+  DEPENDS:=+kmod-usb-gadget
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-configfs/description
+  usb config fs function
+endef
+
+$(eval $(call KernelPackage,usb-configfs))
+
 define KernelPackage/usb-gadget-uvc
   TITLE:=Support for uvc gadget
   KCONFIG:= CONFIG_USB_F_UVC \
@@ -129,7 +160,6 @@ define KernelPackage/usb-gadget-uvc
   DEPENDS:=+kmod-usb-gadget +kmod-usb-lib-composite +kmod-video-videobuf2
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_uvc.ko \
          $(LINUX_DIR)/drivers/usb/gadget/legacy/g_webcam.ko
-  AUTOLOAD:=$(call AutoLoad,46,usb_f_uvc)
   $(call AddDepends/camera)
   $(call AddDepends/usb)
 endef
@@ -187,7 +217,6 @@ define KernelPackage/usb-gadget-eth
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm_subset.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_rndis.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ether.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb_f_ecm)
   $(call AddDepends/usb)
 endef
 
@@ -205,7 +234,6 @@ define KernelPackage/usb-gadget-ncm
   FILES:= \
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ncm.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ncm.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb_f_ncm)
   $(call AddDepends/usb)
 endef
 

@@ -431,7 +431,7 @@ endef
 
 define KernelPackage/video-videobuf2
   TITLE:=videobuf2 lib
-  DEPENDS:=+kmod-dma-buf +kmod-video-core
+  DEPENDS:=+kmod-dma-buf
   KCONFIG:= \
 	CONFIG_VIDEOBUF2_CORE \
   CONFIG_V4L_MEM2MEM_DRIVERS=y \
