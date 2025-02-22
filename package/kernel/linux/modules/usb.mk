@@ -124,7 +124,7 @@ $(eval $(call KernelPackage,usb-lib-composite))
 
 define KernelPackage/usb-configfs
   TITLE:=usb config fs function
-  KCONFIG:=CONFIG_USB_CONFIGFS=y \
+  KCONFIG:=CONFIG_USB_CONFIGFS \
            CONFIG_USB_CONFIGFS_SERIAL=n \
            CONFIG_USB_CONFIGFS_ACM=n \
            CONFIG_USB_CONFIGFS_OBEX=n \
@@ -143,7 +143,7 @@ define KernelPackage/usb-configfs
            CONFIG_USB_CONFIGFS_F_HID=n \
            CONFIG_USB_CONFIGFS_F_UVC=y \
            CONFIG_USB_CONFIGFS_F_PRINTER=n
-  DEPENDS:=+kmod-usb-gadget
+  DEPENDS:=+kmod-usb-gadget +kmod-usb-lib-composite
   $(call AddDepends/usb)
 endef
 
