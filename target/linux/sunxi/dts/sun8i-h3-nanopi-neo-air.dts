@@ -45,12 +45,12 @@
         post-power-on-delay-ms = <5000>;
     };
 
-    // cam_xclk: cam-xclk {
-    //             #clock-cells = <0>;
-    //             compatible = "fixed-clock";
-    //             clock-frequency = <24000000>;
-    //             clock-output-names = "cam-xclk";
-    // };
+    cam_xclk: cam-xclk {
+                #clock-cells = <0>;
+                compatible = "fixed-clock";
+                clock-frequency = <24000000>;
+                clock-output-names = "cam-xclk";
+    };
 
     reg_cam_avdd: cam-avdd {
             compatible = "regulator-fixed";
