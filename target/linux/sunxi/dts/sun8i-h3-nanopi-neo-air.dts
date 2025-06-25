@@ -45,12 +45,12 @@
         post-power-on-delay-ms = <5000>;
     };
 
-    cam_xclk: cam-xclk {
-                #clock-cells = <0>;
-                compatible = "fixed-clock";
-                clock-frequency = <24000000>;
-                clock-output-names = "cam-xclk";
-    };
+    // cam_xclk: cam-xclk {
+    //             #clock-cells = <0>;
+    //             compatible = "fixed-clock";
+    //             clock-frequency = <24000000>;
+    //             clock-output-names = "cam-xclk";
+    // };
 
     reg_cam_avdd: cam-avdd {
             compatible = "regulator-fixed";
@@ -138,6 +138,10 @@
 &ccu {
     // APB2 Configuration Register, see datasheet 0x0058
     apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
+
+    // assigned-clocks = <&ccu CLK_CSI_MCLK>;
+	// assigned-clock-parents = <&osc24M>;
+	// assigned-clock-rates = <24000000>;
 };
 
 &syscon {
@@ -272,7 +276,11 @@
         compatible = "ovti,ov5640";
         reg = <0x3c>;
         clocks = <&cam_xclk>;
+        // clocks = <&ccu CLK_CSI_MCLK>;
         clock-names = "xclk";
+
+        // pinctrl-names = "default";
+        // pinctrl-0 = <&csi_mclk_pin>;
 
         reset-gpios = <&pio 4 14 GPIO_ACTIVE_LOW>;
         powerdown-gpios = <&pio 4 15 GPIO_ACTIVE_HIGH>;
