@@ -1310,6 +1310,9 @@ define KernelPackage/video-mem2mem
   DEPENDS:=+kmod-video-videobuf2
   KCONFIG:= \
     CONFIG_V4L_MEM2MEM_DRIVERS=y \
+    CONFIG_VIDEO_MEM2MEM_DEINTERLACE=y \
+    CONFIG_V4L2_MEM2MEM_DEV=y \
+    CONFIG_V4L_MEM2MEM_DRIVERS=y \
     CONFIG_V4L2_MEM2MEM_DEV
   FILES:= $(LINUX_DIR)/drivers/media/$(V4L2_DIR)/v4l2-mem2mem.ko
   AUTOLOAD:=$(call AutoLoad,66,v4l2-mem2mem)
@@ -1409,3 +1412,48 @@ define KernelPackage/video-tw686x/description
 endef
 
 $(eval $(call KernelPackage,video-tw686x))
+
+define KernelPackage/camera-ov5640
+	TITLE:=OV5640 MIPI Camera Interface
+  DEPENDS:=+kmod-i2c-core +kmod-video-async +kmod-video-fwnode
+  KCONFIG:=CONFIG_VIDEO_V4L2_SUBDEV_API=y \
+           CONFIG_VIDEO_CAMERA_SENSOR=y \
+           CONFIG_VIDEO_OV5640
+  FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
+  AUTOLOAD:=$(call AutoLoad,70,ov5640)
+  $(call AddDepends/camera)
+endef
+
+define KernelPackage/camera-ov5640/description
+ Support for OV5640 i2c device
+endef
+
+$(eval $(call KernelPackage,camera-ov5640))
+
+define KernelPackage/sunxi-csi
+    TITLE:=SUN6I SoC CSI
+    SUBMENU:=$(VIDEO_MENU)
+    DEPENDS:=@TARGET_sunxi \
+      +kmod-video-core \
+      +kmod-video-dma-contig \
+      +kmod-video-videobuf2 \
+      +kmod-video-async \
+      +kmod-video-fwnode
+    KCONFIG:= \
+      CONFIG_VIDEO_HANTRO=n \
+      CONFIG_VIDEO_SUN4I_CSI=n \
+      CONFIG_VIDEO_SUN6I_CSI \
+      CONFIG_VIDEO_SUN8I_DEINTERLACE=n \
+      CONFIG_VIDEO_SUN8I_ROTATE=n \ 
+  
+    FILES:= \
+      $(LINUX_DIR)/drivers/media/platform/sunxi/sun6i-csi/sun6i-csi.ko
+    AUTOLOAD:=$(call AutoLoad,70,sun6i-csi)
+endef
+
+define KernelPackage/sunxi-csi/description
+ Support for the AllWinner sunXi SoC's CSI mipi port
+endef
+
+$(eval $(call KernelPackage,sunxi-csi))
+

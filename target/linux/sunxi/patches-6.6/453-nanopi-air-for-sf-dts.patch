@@ -1,0 +1,475 @@
+--- a/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo-air.dts
++++ b/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo-air.dts
+@@ -1,45 +1,3 @@
+-/*
+- * Copyright (C) 2017 Jelle van der Waa <jelle@vdwaa.nl>
+- *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPL or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This file is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This file is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+ /dts-v1/;
+ #include "sun8i-h3.dtsi"
+ #include "sunxi-common-regulators.dtsi"
+@@ -47,42 +5,178 @@
+ #include <dt-bindings/gpio/gpio.h>
+ 
+ / {
+-	model = "FriendlyARM NanoPi NEO Air";
+-	compatible = "friendlyarm,nanopi-neo-air", "allwinner,sun8i-h3";
++    model = "FriendlyARM NanoPi NEO Air";
++    compatible = "friendlyarm,nanopi-neo-air", "allwinner,sun8i-h3";
+ 
+-	aliases {
+-		serial0 = &uart0;
++    aliases {
++        serial0 = &uart0;
++        serial1 = &uart1;
++        serial2 = &uart2;
++        mmc0 = &mmc0; // If you are not asign mmc id, kernel won't modefine as correct
++        mmc1 = &mmc1; // If you are not asign mmc id, kernel won't modefine as correct
++        mmc2 = &mmc2; // If you are not asign mmc id, kernel won't modefine as correct
++    };
++
++    chosen {
++        stdout-path = "serial0:115200n8";
++    };
++
++    leds {
++        compatible = "gpio-leds";
++
++        pwr {
++            label = "nanopi:green:pwr";
++            gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
++            default-state = "on";
++        };
++
++        status {
++            label = "nanopi:blue:status";
++            gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
++            default-state = "on";
++        };
++    };
++
++    wifi_pwrseq: wifi_pwrseq {
++        compatible = "mmc-pwrseq-simple";
++        reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
++        pinctrl-names = "default";
++        pinctrl-0 = <&wifi_en_pin>;
++        post-power-on-delay-ms = <5000>;
++    };
++
++    cam_xclk: cam-xclk {
++                #clock-cells = <0>;
++                compatible = "fixed-clock";
++                clock-frequency = <24000000>;
++                clock-output-names = "cam-xclk";
++    };
++
++    reg_cam_avdd: cam-avdd {
++            compatible = "regulator-fixed";
++            regulator-name = "cam-avdd";
++            regulator-min-microvolt = <2800000>;
++            regulator-max-microvolt = <2800000>;
++            vin-supply = <&reg_vcc3v3>;
++    };
++
++    reg_cam_dovdd: cam-dovdd {
++            compatible = "regulator-fixed";
++            regulator-name = "cam-dovdd";
++            regulator-min-microvolt = <1800000>;
++            regulator-max-microvolt = <1800000>;
++            vin-supply = <&reg_vcc3v3>;
++    };
++
++    reg_cam_dvdd: cam-dvdd {
++            compatible = "regulator-fixed";
++            regulator-name = "cam-dvdd";
++            regulator-min-microvolt = <1500000>;
++            regulator-max-microvolt = <1500000>;
++            vin-supply = <&reg_vcc3v3>;
++    };
++
++	reserved-memory {
++        #address-cells = <0x01>;
++        #size-cells = <0x01>;
++        ranges;
++        cma_pool: cma@43c00000 {
++        	compatible = "shared-dma-pool";
++        	reusable;
++            size = <0x06000000>; // 96MiB, just let cma driver auto done this job
++        	linux,cma-default;
++        	status = "okay";
++        };
+ 	};
+ 
+-	chosen {
+-		stdout-path = "serial0:115200n8";
++	soc {
++	    compatible = "simple-bus";
++	    #address-cells = <0x01>;
++	    #size-cells = <0x01>;
++        
++	    ve: video-engine@1c0e000 {
++	    	compatible = "allwinner,sunxi-cedar-ve";
++	    	reg = <0x01c0e000 0x1000>,
++	    	          <0x01c00000 0x10>,
++	    	          <0x01c20000 0x800>;
++	    	memory-region = <&cma_pool>;
++	    	syscon = <&syscon>;
++	    	clocks = <&ccu 0x29>, <&ccu 0x6c>, //CLK_BUS_VE, CLK_VE
++	    	         <&ccu 0x61>; //CLK_DRAM_VE
++	    	clock-names = "ahb", "mod", "ram";
++	    	resets = <&ccu 0x1a>; //RST_BUS_VE
++	    	interrupts = <0x0 58 0x04>; //GIC_SPI, 58, IRQ_TYPE_LEVEL_HIGH
++	    	allwinner,sram = <&ve_sram 1>;
++	    	status = "okay";
++	    };
+ 	};
++};
+ 
+-	leds {
+-		compatible = "gpio-leds";
++// &thermal_zones {
++// 	cpu_thermal {
++// 		cooling-maps {
++// 			cpu-hot-limit {
++// 				trip = <&cpu_hot_trip>;
++// 				cooling-device = 
++// 					<&cpu0 1 5>,
++// 					<&cpu1 1 5>,
++// 					<&cpu2 1 1>,
++// 					<&cpu3 1 1>;
++// 			};
++// 			cpu-danger-limit {
++// 				trip = <&cpu_very_hot_trip>;
++// 				cooling-device = 
++// 					<&cpu0 5 5>,
++// 					<&cpu1 5 5>,
++// 					<&cpu2 5 5>,
++// 					<&cpu3 5 5>;
++// 			};
++// 		};
++// 	};
++// };
++
++&ccu {
++    // APB2 Configuration Register, see datasheet 0x0058
++    // apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
++
++    // assigned-clocks = <&ccu CLK_CSI_MCLK>;
++	// assigned-clock-parents = <&osc24M>;
++	// assigned-clock-rates = <24000000>;
++
++    /* settings APB2 as 100MHz */
++	assigned-clocks = <&ccu CLK_APB2>;
++	assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>;
++	assigned-clock-rates = <100000000>;
++};
+ 
+-		led-0 {
+-			label = "nanopi:green:pwr";
+-			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
+-			default-state = "on";
+-		};
+-
+-		led-1 {
+-			label = "nanopi:blue:status";
+-			gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
+-		};
+-	};
++&syscon {
++    compatible = "allwinner,sun8i-h3-system-control", "syscon"; //add syscon module load
++};
+ 
+-	wifi_pwrseq: wifi_pwrseq {
+-		compatible = "mmc-pwrseq-simple";
+-		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
+-	};
++
++&r_pio {
++    wifi_en_pin: wifi_en_pin {
++        pins = "PL7";
++        function = "gpio_out";
++    };
++};
++
++&pio{
++    mmc0_cd_pin: mmc0_cd_pin {
++        pins = "PF6";
++        function = "gpio_in";
++        bias-pull-up;
++    };
+ };
+ 
+ &mmc0 {
+ 	vmmc-supply = <&reg_vcc3v3>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
++	boot_device = <0>;
++	non-removable;
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc0_cd_pin &mmc0_pins>;
+ 	status = "okay";
+ };
+ 
+@@ -94,50 +188,162 @@
+ 	non-removable;
+ 	status = "okay";
+ 
+-	brcmf: bcrmf@1 {
++    brcmf: bcrmf@1 {
+ 		reg = <1>;
+-		compatible = "brcm,bcm4329-fmac";
++		compatible = "brcm,bcm43430a0-fmac";
+ 		interrupt-parent = <&pio>;
+ 		interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>; /* PG10 / EINT10 */
+ 		interrupt-names = "host-wake";
+-	};
++    };
+ };
+ 
+-&mmc2 {
++&uart0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&mmc2_8bit_pins>;
+-	vmmc-supply = <&reg_vcc3v3>;
+-	vqmmc-supply = <&reg_vcc3v3>;
+-	bus-width = <8>;
+-	non-removable;
++	pinctrl-0 = <&uart0_pa_pins>;
+ 	status = "okay";
+ };
+ 
+-&uart0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart0_pa_pins>;
++&uart1 {   
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart1_pins>;
++    status = "okay";
++
++    // hkv-uart {
++    //     compatible = "hkv,hkv-uart";
++	// 	port {
++    //     	ov5640_to_csi: endpoint {
++    //         	remote-endpoint = <&csi_from_ov5640>;
++    //     		bus-width = <8>;
++    //     		data-shift = <2>;
++    //     		hsync-active = <1>; 
++    //     		vsync-active = <0>; 
++    //     		data-active = <1>;  
++    //     		pclk-sample = <1>;  
++    //         };
++    //    	};
++   	// };
++};
++
++&uart2 {
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart2_pins>;
+ 	status = "okay";
+ };
+ 
+-&uart3 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart3_pins>, <&uart3_rts_cts_pins>;
+-	uart-has-rtscts;
++&usbphy {
++    /* USB VBUS is always on */
+ 	status = "okay";
++};
+ 
+-	bluetooth {
+-		compatible = "brcm,bcm43438-bt";
+-		clocks = <&rtc CLK_OSC32K_FANOUT>;
+-		clock-names = "lpo";
+-		vbat-supply = <&reg_vcc3v3>;
+-		vddio-supply = <&reg_vcc3v3>;
+-		device-wakeup-gpios = <&pio 0 8 GPIO_ACTIVE_HIGH>; /* PA8 */
+-		host-wakeup-gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
+-		shutdown-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
+-	};
++&spi0 {
++	status = "okay";
++    spi@0 {
++		compatible = "rohm,dh2228fv";
++		reg = <0x00>;
++        spi-max-frequency = <10000000>;
++		status = "okay";
++    };
+ };
+ 
+-&usbphy {
+-	/* USB VBUS is always on */
++&csi {
++    status = "okay";
++
++    port {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        /* Parallel bus endpoint */
++        csi_from_ov5640: endpoint {
++            remote-endpoint = <&ov5640_to_csi>;
++            bus-width = <8>;
++            data-shift = <2>;
++            hsync-active = <1>;
++            vsync-active = <0>;
++            data-active = <1>;
++            pclk-sample = <1>;
++        };
++    };
++};
++
++&i2c0 {
++    clock-frequency = <800000>;
++	status = "okay";
++};
++
++&i2c0_pins {
++	bias-pull-up;
++};
++
++&i2c2 {
+ 	status = "okay";
++
++    ov5640: camera@3c {
++        compatible = "ovti,ov5640";
++        reg = <0x3c>;
++        clocks = <&cam_xclk>;
++        // clocks = <&ccu CLK_CSI_MCLK>;
++        clock-names = "xclk";
++
++        // pinctrl-names = "default";
++        // pinctrl-0 = <&csi_mclk_pin>;
++
++        reset-gpios = <&pio 4 14 GPIO_ACTIVE_LOW>;
++        powerdown-gpios = <&pio 4 15 GPIO_ACTIVE_HIGH>;
++        AVDD-supply = <&reg_cam_avdd>;
++        DOVDD-supply = <&reg_cam_dovdd>;
++        DVDD-supply = <&reg_cam_dvdd>;
++
++        port {
++            ov5640_to_csi: endpoint {
++                remote-endpoint = <&csi_from_ov5640>;
++                bus-width = <8>;
++                data-shift = <2>;
++                hsync-active = <1>; 
++                vsync-active = <0>; 
++                data-active = <1>;  
++                pclk-sample = <1>;  
++            };
++        };
++    };
++};
++
++&i2c2_pins {
++	bias-pull-up;
++};
++
++&usb_otg {
++    dr_mode = "peripheral";
++    status = "okay";
++};
++
++&ehci0 {
++    // status = "okay";
++};
++
++&ohci0 {
++    // status = "okay";
++};
++
++&ehci1 {
++    status = "okay";
++};
++
++&ohci1 {
++    status = "okay";
++};
++
++&ehci2 {
++    status = "okay";
++};
++
++&ohci2 {
++    status = "okay";
++};
++
++&ehci3 {
++    status = "okay";
++};
++
++&ohci3 {
++    status = "okay";
+ };
+--- a/include/dt-bindings/clock/sun8i-h3-ccu.h
++++ b/include/dt-bindings/clock/sun8i-h3-ccu.h
+@@ -43,11 +43,31 @@
+ #ifndef _DT_BINDINGS_CLK_SUN8I_H3_H_
+ #define _DT_BINDINGS_CLK_SUN8I_H3_H_
+ 
++#define CLK_PLL_CPUX		0
++#define CLK_PLL_AUDIO_BASE	1
++#define CLK_PLL_AUDIO		2
++#define CLK_PLL_AUDIO_2X	3
++#define CLK_PLL_AUDIO_4X	4
++#define CLK_PLL_AUDIO_8X	5
++
+ #define CLK_PLL_VIDEO		6
+ 
++#define CLK_PLL_VE		7
++#define CLK_PLL_DDR		8
++
+ #define CLK_PLL_PERIPH0		9
+ 
++#define CLK_PLL_PERIPH0_2X	10
++#define CLK_PLL_GPU		11
++#define CLK_PLL_PERIPH1		12
++#define CLK_PLL_DE		13
++
+ #define CLK_CPUX		14
++#define CLK_AXI			15
++#define CLK_AHB1		16
++#define CLK_APB1		17
++#define CLK_APB2		18
++#define CLK_AHB2		19
+ 
+ #define CLK_BUS_CE		20
+ #define CLK_BUS_DMA		21

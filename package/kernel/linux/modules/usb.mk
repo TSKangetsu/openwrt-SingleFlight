@@ -122,6 +122,38 @@ endef
 
 $(eval $(call KernelPackage,usb-lib-composite))
 
+define KernelPackage/usb-configfs
+  TITLE:=usb config fs function
+  KCONFIG:=CONFIG_USB_CONFIGFS \
+           CONFIG_USB_CONFIGFS_SERIAL=n \
+           CONFIG_USB_CONFIGFS_ACM=n \
+           CONFIG_USB_CONFIGFS_OBEX=n \
+           CONFIG_USB_CONFIGFS_NCM=y \
+           CONFIG_USB_CONFIGFS_ECM=n \
+           CONFIG_USB_CONFIGFS_ECM_SUBSET=n \
+           CONFIG_USB_CONFIGFS_RNDIS=y \
+           CONFIG_USB_CONFIGFS_EEM=n \
+           CONFIG_USB_CONFIGFS_MASS_STORAGE=n \
+           CONFIG_USB_CONFIGFS_F_LB_SS=n \
+           CONFIG_USB_CONFIGFS_F_FS=n \
+           CONFIG_USB_CONFIGFS_F_UAC1=n \
+           CONFIG_USB_CONFIGFS_F_UAC1_LEGACY=n \
+           CONFIG_USB_CONFIGFS_F_UAC2=n \
+           CONFIG_USB_CONFIGFS_F_MIDI=n \
+           CONFIG_USB_CONFIGFS_F_MIDI2=n \
+           CONFIG_USB_CONFIGFS_F_HID=n \
+           CONFIG_USB_CONFIGFS_F_UVC=y \
+           CONFIG_USB_CONFIGFS_F_PRINTER=n
+  DEPENDS:=+kmod-usb-gadget +kmod-usb-lib-composite
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-configfs/description
+  usb config fs function
+endef
+
+$(eval $(call KernelPackage,usb-configfs))
+
 define KernelPackage/usb-gadget-hid
   TITLE:=USB HID Gadget Support
   KCONFIG:=CONFIG_USB_G_HID
@@ -169,7 +201,6 @@ define KernelPackage/usb-gadget-eth
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm_subset.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_rndis.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ether.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb_f_ecm)
   $(call AddDepends/usb)
 endef
 
@@ -187,7 +218,6 @@ define KernelPackage/usb-gadget-ncm
   FILES:= \
 	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ncm.ko \
 	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ncm.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb_f_ncm)
   $(call AddDepends/usb)
 endef
 
@@ -272,7 +302,7 @@ $(eval $(call KernelPackage,usb-uhci,1))
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
   DEPENDS:= \
-	+TARGET_ath79:kmod-phy-ath79-usb \
+  +TARGET_ath79:kmod-phy-ath79-usb \
 	+TARGET_bcm53xx:kmod-usb-bcma \
 	+TARGET_bcm47xx:kmod-usb-bcma \
 	+TARGET_bcm47xx:kmod-usb-ssb

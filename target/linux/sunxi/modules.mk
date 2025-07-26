@@ -2,6 +2,32 @@
 #
 # Copyright (C) 2013-2016 OpenWrt.org
 
+define KernelPackage/usb-sunxi-mbus
+    SUBMENU:=$(USB_MENU)
+    TITLE:=SUN6I SoC MBUS
+    DEPENDS:=@TARGET_sunxi +kmod-usb-gadget +kmod-usb-dwc2
+    KCONFIG:=CONFIG_USB_PHY=y \
+             CONFIG_USB_DWC2_DUAL_ROLE=y \
+             CONFIG_USB_DWC2_PERIPHERAL=n \
+             CONFIG_USB_GADGET_VBUS_DRAW=500 \
+             CONFIG_USB_MUSB_HDRC \
+             CONFIG_USB_MUSB_GADGET=n \
+             CONFIG_USB_MUSB_HOST=n \
+             CONFIG_USB_MUSB_DUAL_ROLE=y \
+             CONFIG_NOP_USB_XCEIV=y \
+             CONFIG_USB_MUSB_SUNXI
+    FILES:=$(LINUX_DIR)/drivers/usb/musb/sunxi.ko \
+           $(LINUX_DIR)/drivers/usb/musb/musb_hdrc.ko
+    AUTOLOAD:=$(call AutoLoad,50,musb_hdrc sunxi)
+endef
+
+define KernelPackage/usb-sunxi-mbus/description
+ Support for the AllWinner sunXi MBUS Driver
+endef
+
+$(eval $(call KernelPackage,usb-sunxi-mbus))
+
+
 define KernelPackage/mfd-ac100
     SUBMENU:=$(OTHER_MENU)
     TITLE:=X-Powers AC100 MFD support
