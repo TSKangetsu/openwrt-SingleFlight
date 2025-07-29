@@ -1418,7 +1418,13 @@ define KernelPackage/camera-ov5640
   DEPENDS:=+kmod-i2c-core +kmod-video-async +kmod-video-fwnode
   KCONFIG:=CONFIG_VIDEO_V4L2_SUBDEV_API=y \
            CONFIG_VIDEO_CAMERA_SENSOR=y \
-           CONFIG_VIDEO_OV5640
+           CONFIG_VIDEO_OV5640 \
+           CONFIG_VIDEO_IMX415=n \
+           CONFIG_VIDEO_OV01A10=n \
+           CONFIG_VIDEO_OV08X40=n \
+           CONFIG_VIDEO_OV4689=n \
+           CONFIG_VIDEO_OV8858=n \
+           CONFIG_VIDEO_ST_VGXY61=n
   FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
   AUTOLOAD:=$(call AutoLoad,70,ov5640)
   $(call AddDepends/camera)
