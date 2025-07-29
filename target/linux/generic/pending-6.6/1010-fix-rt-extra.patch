@@ -4,25 +4,61 @@
  		backlog_unlock_irq_restore(sd, &flags);
  
  	} else if (!cmpxchg(&sd->defer_ipi_scheduled, 0, 1)) {
+-		smp_call_function_single_async(cpu, &sd->defer_csd);
 +#ifndef CONFIG_PREEMPT_RT
- 		smp_call_function_single_async(cpu, &sd->defer_csd);
++ 		smp_call_function_single_async(cpu, &sd->defer_csd);
 +#else
 +		schedule_work_on(cpu, &sd->defer_work);
 +#endif
  	}
  }
  
---- a/net/core/page_pool.c
-+++ b/net/core/page_pool.c
-@@ -897,7 +897,11 @@ static void page_pool_release_retry(stru
- 		if (cpu == raw_smp_processor_id())
- 			raise_softirq_irqoff(NET_RX_SOFTIRQ);
- 		else if (!cmpxchg(&sd->defer_ipi_scheduled, 0, 1))
+@@ -6022,7 +6026,13 @@ static void net_rps_send_ipi(struct soft
+ 		struct softnet_data *next = remsd->rps_ipi_next;
+ 
+ 		if (cpu_online(remsd->cpu))
+-			smp_call_function_single_async(remsd->cpu, &remsd->csd);
++		{
 +#ifndef CONFIG_PREEMPT_RT
- 			smp_call_function_single_async(cpu, &sd->defer_csd);
++ 			smp_call_function_single_async(remsd->cpu, &remsd->csd));
 +#else
-+			schedule_work_on(cpu, &sd->defer_work);
++			schedule_work_on(remsd->cpu, &remsd->defer_work);
 +#endif
++		}
+ 		remsd = next;
  	}
- 	local_irq_restore(flags);
+ #endif
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -6881,7 +6881,13 @@ nodefer:	__kfree_skb(skb);
+ 	 * if we are unlucky enough (this seems very unlikely).
+ 	 */
+ 	if (unlikely(kick) && !cmpxchg(&sd->defer_ipi_scheduled, 0, 1))
+-		smp_call_function_single_async(cpu, &sd->defer_csd);
++	{
++#ifndef CONFIG_PREEMPT_RT
++ 		smp_call_function_single_async(cpu, &sd->defer_csd);
++#else
++		schedule_work_on(cpu, &sd->defer_work);
++#endif
++	}
+ }
+ 
+ static void skb_splice_csum_page(struct sk_buff *skb, struct page *page,
+# --- a/net/core/page_pool.c
+# +++ b/net/core/page_pool.c
+# @@ -897,7 +897,13 @@ static void page_pool_release_retry(stru
+#  		if (cpu == raw_smp_processor_id())
+#  			raise_softirq_irqoff(NET_RX_SOFTIRQ);
+#  		else if (!cmpxchg(&sd->defer_ipi_scheduled, 0, 1))
+# -			smp_call_function_single_async(cpu, &sd->defer_csd);
+# +		{
+# +#ifndef CONFIG_PREEMPT_RT
+# + 			smp_call_function_single_async(cpu, &sd->defer_csd);
+# +#else
+# +			schedule_work_on(cpu, &sd->defer_work);
+# +#endif
+# +		}
+#  	}
+#  	local_irq_restore(flags);
  
