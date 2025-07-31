@@ -1,17 +1,17 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=rtl8812au
+PKG_NAME:=rtl8812au-aircrack
 PKG_RELEASE=1
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 
-PKG_SOURCE_URL:=https://github.com/lwfinger/rtw88.git
+PKG_SOURCE_URL:=https://github.com/aircrack-ng/rtl8812au.git
 PKG_MIRROR_HASH:=skip
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2025-7-29
+PKG_SOURCE_DATE:=2023-11-07
 
-PKG_SOURCE_VERSION:=fa96fd4c014fa528d1fa50318e97aa71bf4f473c
+PKG_SOURCE_VERSION:=a3e0c0b6d54546418f046db0dbf1d20e454c9ec2
 PKG_BUILD_PARALLEL:=1
 
 STAMP_CONFIGURED_DEPENDS := $(STAGING_DIR)/usr/include/mac80211-backport/backport/autoconf.h
@@ -19,21 +19,23 @@ STAMP_CONFIGURED_DEPENDS := $(STAGING_DIR)/usr/include/mac80211-backport/backpor
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
-define KernelPackage/rtl8812au
+define KernelPackage/rtl8812au-aircrack
   SUBMENU:=Wireless Drivers
   TITLE:=Driver for Realtek 8812 AU devices from aircrack
-  DEPENDS:=+kmod-mac80211 +kmod-usb-core +@DRIVER_11AC_SUPPORT +@KERNEL_PAGE_POOL
-  FILES:=$(PKG_BUILD_DIR)/rtw_8812au.ko \
-		 $(PKG_BUILD_DIR)/rtw_8812a.ko \
-		 $(PKG_BUILD_DIR)/rtw_usb.ko \
-		 $(PKG_BUILD_DIR)/rtw_88xxa.ko \
-		 $(PKG_BUILD_DIR)/rtw_core.ko 
-  AUTOLOAD:=$(call AutoProbe,rtw_core rtw_88xxa rtw_usb rtw_8812a rtw_8812au)
+  DEPENDS:=+kmod-cfg80211 +kmod-usb-core +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
+  FILES:=$(PKG_BUILD_DIR)/88XXau.ko
+  AUTOLOAD:=$(call AutoProbe,88XXau)
 endef
 
 NOSTDINC_FLAGS := \
 	$(KERNEL_NOSTDINC_FLAGS) \
-	-I$(PKG_BUILD_DIR)
+	-I$(PKG_BUILD_DIR) \
+	-I$(PKG_BUILD_DIR)/include \
+	-I$(STAGING_DIR)/usr/include/mac80211-backport \
+	-I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
+	-I$(STAGING_DIR)/usr/include/mac80211 \
+	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
+	-include backport/backport.h
 
 NOSTDINC_FLAGS+=-DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT -DBUILD_OPENWRT
 
@@ -45,4 +47,4 @@ define Build/Compile
 		modules
 endef
 
-$(eval $(call KernelPackage,rtl8812au))
+$(eval $(call KernelPackage,rtl8812au-aircrack))

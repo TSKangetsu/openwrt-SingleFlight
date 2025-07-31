@@ -1,0 +1,53 @@
+--- a/os_dep/linux/ioctl_cfg80211.c
++++ b/os_dep/linux/ioctl_cfg80211.c
+@@ -461,7 +461,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapte
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+ 	if (started) {
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0))
+-		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false, 0);
++		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false);
+ #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+ 		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false);
+ #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) || (RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,0))
+@@ -477,7 +477,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapte
+ 		goto exit;
+ 
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0))
+-	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0, 0);
++	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
+ #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
+ 	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
+ #else
+@@ -5283,7 +5283,7 @@ exit:
+ 	return ret;
+ }
+ 
+-static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
++static int cfg80211_rtw_change_beacon_legacy(struct wiphy *wiphy, struct net_device *ndev,
+ 		struct cfg80211_beacon_data *info)
+ {
+ 	int ret = 0;
+@@ -5308,6 +5308,14 @@ static int cfg80211_rtw_change_beacon(st
+ 	return ret;
+ }
+ 
++/* Wrapper function for newer kernel API that expects cfg80211_ap_update */
++static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
++		struct cfg80211_ap_update *params)
++{
++	/* cfg80211_ap_update contains beacon data in the beacon field */
++	return cfg80211_rtw_change_beacon_legacy(wiphy, ndev, &params->beacon);
++}
++
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 2))
+ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
+ #else
+@@ -6295,7 +6303,7 @@ static int cfg80211_rtw_get_channel(stru
+ 	return 0;
+ }
+ 
+-static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy
++static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy, struct net_device *ndev
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
+ 	, struct cfg80211_chan_def *chandef
+ #else
