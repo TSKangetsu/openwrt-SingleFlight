@@ -1,0 +1,3 @@
+rmmod g_ncm
+modprobe usb_f_uvc
+insmod g_webcam streaming_maxpacket=512
