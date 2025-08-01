@@ -3,4 +3,12 @@
 
 /usr/bin/ncm.sh
 /usr/bin/singleIntSetter.sh
+
+media-ctl -d /dev/media0 -V '"sun6i-csi-bridge":0 [fmt:UYVY8_2X8/640x480]'
+media-ctl -d /dev/media0 -V '"sun6i-csi-bridge":1 [fmt:UYVY8_2X8/640x480]'
+v4l2-ctl --device /dev/video0 --set-fmt-video=width=640,height=480,pixelformat=YUYV --stream-mmap --stream-to=frame.raw --stream-count=5
+
+/root/RuAPM_Cli &
+/usr/bin/v4l2-cedurs /dev/video1 640 480 60 30 NV12 &
+
 exit 0
