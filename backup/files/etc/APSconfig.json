@@ -249,6 +249,8 @@
         "COM_BroadCastPFrameSize": 15,
         "BroadcastInterfaces": [
             "wlan0"
-        ]
+        ],
+        "COM_BroadCastWirelessFreq": 5600,
+        "COM_BroadCastWirelessPWRDBm": 3000
     }
 }

@@ -46,7 +46,7 @@
  /dts-v1/;
  #include "sun8i-h3.dtsi"
  #include "sunxi-common-regulators.dtsi"
-@@ -47,42 +5,178 @@
+@@ -47,97 +5,344 @@
  #include <dt-bindings/gpio/gpio.h>
  
  / {
@@ -54,16 +54,14 @@
 -	compatible = "friendlyarm,nanopi-neo-air", "allwinner,sun8i-h3";
 +    model = "FriendlyARM NanoPi NEO Air";
 +    compatible = "friendlyarm,nanopi-neo-air", "allwinner,sun8i-h3";
- 
--	aliases {
--		serial0 = &uart0;
++
 +    aliases {
 +        serial0 = &uart0;
 +        serial1 = &uart1;
 +        serial2 = &uart2;
-+        mmc0 = &mmc0; // If you are not asign mmc id, kernel won't modefine as correct
-+        mmc1 = &mmc1; // If you are not asign mmc id, kernel won't modefine as correct
-+        mmc2 = &mmc2; // If you are not asign mmc id, kernel won't modefine as correct
++        mmc0 = &mmc0;	// If you are not asign mmc id, kernel won't modefine as correct
++        mmc1 = &mmc1;	// If you are not asign mmc id, kernel won't modefine as correct
++        mmc2 = &mmc2;	// If you are not asign mmc id, kernel won't modefine as correct
 +    };
 +
 +    chosen {
@@ -75,114 +73,110 @@
 +
 +        pwr {
 +            label = "nanopi:green:pwr";
-+            gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
++            gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;	/* PL10 */
 +            default-state = "on";
 +        };
 +
 +        status {
 +            label = "nanopi:blue:status";
-+            gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
++            gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>;	/* PA10 */
 +            default-state = "on";
 +        };
 +    };
 +
 +    wifi_pwrseq: wifi_pwrseq {
 +        compatible = "mmc-pwrseq-simple";
-+        reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
++        reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>;	/* PL7 */
 +        pinctrl-names = "default";
 +        pinctrl-0 = <&wifi_en_pin>;
 +        post-power-on-delay-ms = <5000>;
 +    };
 +
 +    cam_xclk: cam-xclk {
-+                #clock-cells = <0>;
-+                compatible = "fixed-clock";
-+                clock-frequency = <24000000>;
-+                clock-output-names = "cam-xclk";
++        #clock-cells = <0>;
++        compatible = "fixed-clock";
++        clock-frequency = <24000000>;
++        clock-output-names = "cam-xclk";
 +    };
 +
 +    reg_cam_avdd: cam-avdd {
-+            compatible = "regulator-fixed";
-+            regulator-name = "cam-avdd";
-+            regulator-min-microvolt = <2800000>;
-+            regulator-max-microvolt = <2800000>;
-+            vin-supply = <&reg_vcc3v3>;
++        compatible = "regulator-fixed";
++        regulator-name = "cam-avdd";
++        regulator-min-microvolt = <2800000>;
++        regulator-max-microvolt = <2800000>;
++        vin-supply = <&reg_vcc3v3>;
 +    };
 +
 +    reg_cam_dovdd: cam-dovdd {
-+            compatible = "regulator-fixed";
-+            regulator-name = "cam-dovdd";
-+            regulator-min-microvolt = <1800000>;
-+            regulator-max-microvolt = <1800000>;
-+            vin-supply = <&reg_vcc3v3>;
++        compatible = "regulator-fixed";
++        regulator-name = "cam-dovdd";
++        regulator-min-microvolt = <1800000>;
++        regulator-max-microvolt = <1800000>;
++        vin-supply = <&reg_vcc3v3>;
 +    };
 +
 +    reg_cam_dvdd: cam-dvdd {
-+            compatible = "regulator-fixed";
-+            regulator-name = "cam-dvdd";
-+            regulator-min-microvolt = <1500000>;
-+            regulator-max-microvolt = <1500000>;
-+            vin-supply = <&reg_vcc3v3>;
++        compatible = "regulator-fixed";
++        regulator-name = "cam-dvdd";
++        regulator-min-microvolt = <1500000>;
++        regulator-max-microvolt = <1500000>;
++        vin-supply = <&reg_vcc3v3>;
 +    };
 +
-+	reserved-memory {
++    reserved-memory {
 +        #address-cells = <0x01>;
 +        #size-cells = <0x01>;
 +        ranges;
 +        cma_pool: cma@43c00000 {
-+        	compatible = "shared-dma-pool";
-+        	reusable;
-+            size = <0x06000000>; // 96MiB, just let cma driver auto done this job
-+        	linux,cma-default;
-+        	status = "okay";
++            compatible = "shared-dma-pool";
++            reusable;
++            size = <0x06000000>;	// 96MiB, just let cma driver auto done this job
++            linux,cma-default;
++            status = "okay";
 +        };
- 	};
- 
--	chosen {
--		stdout-path = "serial0:115200n8";
-+	soc {
-+	    compatible = "simple-bus";
-+	    #address-cells = <0x01>;
-+	    #size-cells = <0x01>;
++    };
++
++    soc {
++        compatible = "simple-bus";
++        #address-cells = <0x01>;
++        #size-cells = <0x01>;
 +        
-+	    ve: video-engine@1c0e000 {
-+	    	compatible = "allwinner,sunxi-cedar-ve";
-+	    	reg = <0x01c0e000 0x1000>,
-+	    	          <0x01c00000 0x10>,
-+	    	          <0x01c20000 0x800>;
-+	    	memory-region = <&cma_pool>;
-+	    	syscon = <&syscon>;
-+	    	clocks = <&ccu 0x29>, <&ccu 0x6c>, //CLK_BUS_VE, CLK_VE
-+	    	         <&ccu 0x61>; //CLK_DRAM_VE
-+	    	clock-names = "ahb", "mod", "ram";
-+	    	resets = <&ccu 0x1a>; //RST_BUS_VE
-+	    	interrupts = <0x0 58 0x04>; //GIC_SPI, 58, IRQ_TYPE_LEVEL_HIGH
-+	    	allwinner,sram = <&ve_sram 1>;
-+	    	status = "okay";
-+	    };
- 	};
++        ve: video-engine@1c0e000 {
++            compatible = "allwinner,sunxi-cedar-ve";
++            reg = <0x01c0e000 0x1000>,
++                  <0x01c00000 0x10>,
++                  <0x01c20000 0x800>;
++            memory-region = <&cma_pool>;
++            syscon = <&syscon>;
++            clocks = <&ccu 0x29>, <&ccu 0x6c>,	//CLK_BUS_VE, CLK_VE
++                     <&ccu 0x61>;	//CLK_DRAM_VE
++            clock-names = "ahb", "mod", "ram";
++            resets = <&ccu 0x1a>;	//RST_BUS_VE
++            interrupts = <0x0 58 0x04>;	//GIC_SPI, 58, IRQ_TYPE_LEVEL_HIGH
++            allwinner,sram = <&ve_sram 1>;
++            status = "okay";
++        };
++    };
 +};
- 
--	leds {
--		compatible = "gpio-leds";
++
 +// &thermal_zones {
 +// 	cpu_thermal {
 +// 		cooling-maps {
 +// 			cpu-hot-limit {
 +// 				trip = <&cpu_hot_trip>;
-+// 				cooling-device = 
-+// 					<&cpu0 1 5>,
-+// 					<&cpu1 1 5>,
++// 				cooling-device =
++// 					<&cpu0 1 2>,
++// 					<&cpu1 1 2>,
 +// 					<&cpu2 1 1>,
 +// 					<&cpu3 1 1>;
 +// 			};
 +// 			cpu-danger-limit {
 +// 				trip = <&cpu_very_hot_trip>;
-+// 				cooling-device = 
-+// 					<&cpu0 5 5>,
-+// 					<&cpu1 5 5>,
-+// 					<&cpu2 5 5>,
-+// 					<&cpu3 5 5>;
++// 				cooling-device =
++// 					<&cpu0 2 2>,
++// 					<&cpu1 2 2>,
++// 					<&cpu2 2 2>,
++// 					<&cpu3 2 2>;
 +// 			};
 +// 		};
 +// 	};
@@ -193,15 +187,37 @@
 +    // apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
 +
 +    // assigned-clocks = <&ccu CLK_CSI_MCLK>;
-+	// assigned-clock-parents = <&osc24M>;
-+	// assigned-clock-rates = <24000000>;
++    // assigned-clock-parents = <&osc24M>;
++    // assigned-clock-rates = <24000000>;
 +
 +    /* settings APB2 as 100MHz */
-+	assigned-clocks = <&ccu CLK_APB2>;
-+	assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>;
-+	assigned-clock-rates = <100000000>;
++    assigned-clocks = <&ccu CLK_APB2>;
++    assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>;
++    assigned-clock-rates = <100000000>;
++};
++
++&syscon {
++    compatible = "allwinner,sun8i-h3-system-control", "syscon";	//add syscon module load
++};
++
++&r_pio {
++    wifi_en_pin: wifi_en_pin {
++        pins = "PL7";
++        function = "gpio_out";
++    };
 +};
  
+-	aliases {
+-		serial0 = &uart0;
+-	};
+-
+-	chosen {
+-		stdout-path = "serial0:115200n8";
+-	};
+-
+-	leds {
+-		compatible = "gpio-leds";
+-
 -		led-0 {
 -			label = "nanopi:green:pwr";
 -			gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>; /* PL10 */
@@ -213,23 +229,12 @@
 -			gpios = <&pio 0 10 GPIO_ACTIVE_HIGH>; /* PA10 */
 -		};
 -	};
-+&syscon {
-+    compatible = "allwinner,sun8i-h3-system-control", "syscon"; //add syscon module load
-+};
- 
+-
 -	wifi_pwrseq: wifi_pwrseq {
 -		compatible = "mmc-pwrseq-simple";
 -		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
 -	};
-+
-+&r_pio {
-+    wifi_en_pin: wifi_en_pin {
-+        pins = "PL7";
-+        function = "gpio_out";
-+    };
-+};
-+
-+&pio{
++&pio {
 +    mmc0_cd_pin: mmc0_cd_pin {
 +        pins = "PF6";
 +        function = "gpio_in";
@@ -238,83 +243,73 @@
  };
  
  &mmc0 {
- 	vmmc-supply = <&reg_vcc3v3>;
- 	bus-width = <4>;
- 	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
-+	boot_device = <0>;
-+	non-removable;
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc0_cd_pin &mmc0_pins>;
- 	status = "okay";
+-	vmmc-supply = <&reg_vcc3v3>;
+-	bus-width = <4>;
+-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
+-	status = "okay";
++    vmmc-supply = <&reg_vcc3v3>;
++    bus-width = <4>;
++    cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;	/* PF6 */
++    boot_device = <0>;
++    non-removable;
++    pinctrl-names = "default";
++    pinctrl-0 = <&mmc0_cd_pin &mmc0_pins>;
++    status = "okay";
  };
  
-@@ -94,50 +188,162 @@
- 	non-removable;
- 	status = "okay";
- 
+ &mmc1 {
+-	vmmc-supply = <&reg_vcc3v3>;
+-	vqmmc-supply = <&reg_vcc3v3>;
+-	mmc-pwrseq = <&wifi_pwrseq>;
+-	bus-width = <4>;
+-	non-removable;
+-	status = "okay";
+-
 -	brcmf: bcrmf@1 {
-+    brcmf: bcrmf@1 {
- 		reg = <1>;
+-		reg = <1>;
 -		compatible = "brcm,bcm4329-fmac";
-+		compatible = "brcm,bcm43430a0-fmac";
- 		interrupt-parent = <&pio>;
- 		interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>; /* PG10 / EINT10 */
- 		interrupt-names = "host-wake";
+-		interrupt-parent = <&pio>;
+-		interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>; /* PG10 / EINT10 */
+-		interrupt-names = "host-wake";
 -	};
-+    };
- };
- 
+-};
+-
 -&mmc2 {
-+&uart0 {
- 	pinctrl-names = "default";
+-	pinctrl-names = "default";
 -	pinctrl-0 = <&mmc2_8bit_pins>;
 -	vmmc-supply = <&reg_vcc3v3>;
 -	vqmmc-supply = <&reg_vcc3v3>;
 -	bus-width = <8>;
 -	non-removable;
-+	pinctrl-0 = <&uart0_pa_pins>;
- 	status = "okay";
- };
- 
--&uart0 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&uart0_pa_pins>;
-+&uart1 {   
-+    pinctrl-names = "default";
-+    pinctrl-0 = <&uart1_pins>;
+-	status = "okay";
++    vmmc-supply = <&reg_vcc3v3>;
++    vqmmc-supply = <&reg_vcc3v3>;
++    mmc-pwrseq = <&wifi_pwrseq>;
++    bus-width = <4>;
++    non-removable;
 +    status = "okay";
 +
-+    // hkv-uart {
-+    //     compatible = "hkv,hkv-uart";
-+	// 	port {
-+    //     	ov5640_to_csi: endpoint {
-+    //         	remote-endpoint = <&csi_from_ov5640>;
-+    //     		bus-width = <8>;
-+    //     		data-shift = <2>;
-+    //     		hsync-active = <1>; 
-+    //     		vsync-active = <0>; 
-+    //     		data-active = <1>;  
-+    //     		pclk-sample = <1>;  
-+    //         };
-+    //    	};
-+   	// };
-+};
-+
-+&uart2 {
-+    pinctrl-names = "default";
-+    pinctrl-0 = <&uart2_pins>;
- 	status = "okay";
++    brcmf: bcrmf@1 {
++        reg = <1>;
++        compatible = "brcm,bcm43430a0-fmac";
++        interrupt-parent = <&pio>;
++        interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>;	/* PG10 / EINT10 */
++        interrupt-names = "host-wake";
++    };
  };
  
+ &uart0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&uart0_pa_pins>;
+-	status = "okay";
+-};
+-
 -&uart3 {
 -	pinctrl-names = "default";
 -	pinctrl-0 = <&uart3_pins>, <&uart3_rts_cts_pins>;
 -	uart-has-rtscts;
-+&usbphy {
-+    /* USB VBUS is always on */
- 	status = "okay";
-+};
- 
+-	status = "okay";
+-
 -	bluetooth {
 -		compatible = "brcm,bcm43438-bt";
 -		clocks = <&rtc CLK_OSC32K_FANOUT>;
@@ -325,18 +320,55 @@
 -		host-wakeup-gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
 -		shutdown-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
 -	};
-+&spi0 {
-+	status = "okay";
-+    spi@0 {
-+		compatible = "rohm,dh2228fv";
-+		reg = <0x00>;
-+        spi-max-frequency = <10000000>;
-+		status = "okay";
-+    };
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart0_pa_pins>;
++    status = "okay";
++};
++
++&uart1 {   
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart1_pins>;
++    status = "okay";
++
++    // hkv-uart {
++    //     compatible = "hkv,hkv-uart";
++    // 	port {
++    //     	ov5640_to_csi: endpoint {
++    //         	remote-endpoint = <&csi_from_ov5640>;
++    //     		bus-width = <8>;
++    //     		data-shift = <2>;
++    //     		hsync-active = <1>; 
++    //     		vsync-active = <0>; 
++    //     		data-active = <1>;  
++    //     		pclk-sample = <1>;  
++    //         };
++    //    	};
++    // };
++};
++
++&uart2 {
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart2_pins>;
++    status = "okay";
  };
  
--&usbphy {
+ &usbphy {
 -	/* USB VBUS is always on */
+-	status = "okay";
++    /* USB VBUS is always on */
++    status = "okay";
++};
++
++&spi0 {
++    status = "okay";
++    spi@0 {
++        compatible = "rohm,dh2228fv";
++        reg = <0x00>;
++        spi-max-frequency = <10000000>;
++        status = "okay";
++    };
++};
++
 +&csi {
 +    status = "okay";
 +
@@ -359,15 +391,15 @@
 +
 +&i2c0 {
 +    clock-frequency = <800000>;
-+	status = "okay";
++    status = "okay";
 +};
 +
 +&i2c0_pins {
-+	bias-pull-up;
++    bias-pull-up;
 +};
 +
 +&i2c2 {
- 	status = "okay";
++    status = "okay";
 +
 +    ov5640: camera@3c {
 +        compatible = "ovti,ov5640";
@@ -400,7 +432,7 @@
 +};
 +
 +&i2c2_pins {
-+	bias-pull-up;
++    bias-pull-up;
 +};
 +
 +&usb_otg {
@@ -473,3 +505,228 @@
  
  #define CLK_BUS_CE		20
  #define CLK_BUS_DMA		21
+--- a/arch/arm/boot/dts/allwinner/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/allwinner/sun8i-h3.dtsi
+@@ -51,19 +51,19 @@
+ 		opp-648000000 {
+ 			opp-hz = /bits/ 64 <648000000>;
+ 			opp-microvolt = <1040000 1040000 1300000>;
+-			clock-latency-ns = <244144>; /* 8 32k periods */
++			clock-latency-ns = <244144>;	/* 8 32k periods */
+ 		};
+ 
+ 		opp-816000000 {
+ 			opp-hz = /bits/ 64 <816000000>;
+ 			opp-microvolt = <1100000 1100000 1300000>;
+-			clock-latency-ns = <244144>; /* 8 32k periods */
++			clock-latency-ns = <244144>;	/* 8 32k periods */
+ 		};
+ 
+ 		opp-1008000000 {
+ 			opp-hz = /bits/ 64 <1008000000>;
+ 			opp-microvolt = <1200000 1200000 1300000>;
+-			clock-latency-ns = <244144>; /* 8 32k periods */
++			clock-latency-ns = <244144>;	/* 8 32k periods */
+ 		};
+ 	};
+ 
+@@ -135,18 +135,18 @@
+ 	pmu {
+ 		compatible = "arm,cortex-a7-pmu";
+ 		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
++					 <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
++					 <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
++					 <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
+ 		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+ 	};
+ 
+ 	timer {
+ 		compatible = "arm,armv7-timer";
+ 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+-			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
++					 <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++					 <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++					 <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+ 	};
+ 
+ 	soc {
+@@ -154,8 +154,8 @@
+ 			compatible = "allwinner,sun8i-h3-deinterlace";
+ 			reg = <0x01400000 0x20000>;
+ 			clocks = <&ccu CLK_BUS_DEINTERLACE>,
+-				 <&ccu CLK_DEINTERLACE>,
+-				 <&ccu CLK_DRAM_DEINTERLACE>;
++					 <&ccu CLK_DEINTERLACE>,
++					 <&ccu CLK_DRAM_DEINTERLACE>;
+ 			clock-names = "bus", "mod", "ram";
+ 			resets = <&ccu RST_BUS_DEINTERLACE>;
+ 			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
+@@ -179,7 +179,7 @@
+ 
+ 				ve_sram: sram-section@0 {
+ 					compatible = "allwinner,sun8i-h3-sram-c1",
+-						     "allwinner,sun4i-a10-sram-c1";
++								 "allwinner,sun4i-a10-sram-c1";
+ 					reg = <0x000000 0x80000>;
+ 				};
+ 			};
+@@ -189,7 +189,7 @@
+ 			compatible = "allwinner,sun8i-h3-video-engine";
+ 			reg = <0x01c0e000 0x1000>;
+ 			clocks = <&ccu CLK_BUS_VE>, <&ccu CLK_VE>,
+-				 <&ccu CLK_DRAM_VE>;
++					 <&ccu CLK_DRAM_VE>;
+ 			clock-names = "ahb", "mod", "ram";
+ 			resets = <&ccu RST_BUS_VE>;
+ 			interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
+@@ -209,19 +209,19 @@
+ 			compatible = "allwinner,sun8i-h3-mali", "arm,mali-400";
+ 			reg = <0x01c40000 0x10000>;
+ 			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
++						 <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>,
++						 <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>,
++						 <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>,
++						 <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>,
++						 <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>,
++						 <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "gp",
+-					  "gpmmu",
+-					  "pp0",
+-					  "ppmmu0",
+-					  "pp1",
+-					  "ppmmu1",
+-					  "pmu";
++							  "gpmmu",
++							  "pp0",
++							  "ppmmu0",
++							  "pp1",
++							  "ppmmu1",
++							  "pmu";
+ 			clocks = <&ccu CLK_BUS_GPU>, <&ccu CLK_GPU>;
+ 			clock-names = "bus", "core";
+ 			resets = <&ccu RST_BUS_GPU>;
+@@ -241,15 +241,21 @@
+ 		};
+ 	};
+ 
+-	thermal-zones {
++	thermal_zones: thermal-zones {
+ 		cpu_thermal: cpu-thermal {
+-			polling-delay-passive = <0>;
+-			polling-delay = <0>;
++			polling-delay-passive = <10000>;
++			polling-delay = <10000>;
+ 			thermal-sensors = <&ths>;
+ 
+ 			trips {
+ 				cpu_hot_trip: cpu-hot {
+-					temperature = <80000>;
++					temperature = <75000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++
++				cpu_hot_trip_m: cpu-hot-m {
++					temperature = <90000>;
+ 					hysteresis = <2000>;
+ 					type = "passive";
+ 				};
+@@ -262,12 +268,26 @@
+ 			};
+ 
+ 			cooling-maps {
+-				cpu-hot-limit {
++				map0 {
+ 					trip = <&cpu_hot_trip>;
+-					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+-							 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+-							 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+-							 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++					cooling-device = <&cpu0 1 1>,
++									 <&cpu1 1 1>,
++									 <&cpu2 1 1>,
++									 <&cpu3 1 1>;
++				};
++				map2 {
++					trip = <&cpu_hot_trip_m>;
++					cooling-device = <&cpu0 2 2>,
++									 <&cpu1 2 2>,
++									 <&cpu2 2 2>,
++									 <&cpu3 2 2>;
++				};
++				map1 {
++					trip = <&cpu_very_hot_trip>;
++					cooling-device = <&cpu0 2 2>,
++									 <&cpu1 2 2>,
++									 <&cpu2 2 2>,
++									 <&cpu3 2 2>;
+ 				};
+ 			};
+ 		};
+@@ -289,37 +309,37 @@
+ &mmc0 {
+ 	compatible = "allwinner,sun7i-a20-mmc";
+ 	clocks = <&ccu CLK_BUS_MMC0>,
+-		 <&ccu CLK_MMC0>,
+-		 <&ccu CLK_MMC0_OUTPUT>,
+-		 <&ccu CLK_MMC0_SAMPLE>;
++			 <&ccu CLK_MMC0>,
++			 <&ccu CLK_MMC0_OUTPUT>,
++			 <&ccu CLK_MMC0_SAMPLE>;
+ 	clock-names = "ahb",
+-		      "mmc",
+-		      "output",
+-		      "sample";
++				  "mmc",
++				  "output",
++				  "sample";
+ };
+ 
+ &mmc1 {
+ 	compatible = "allwinner,sun7i-a20-mmc";
+ 	clocks = <&ccu CLK_BUS_MMC1>,
+-		 <&ccu CLK_MMC1>,
+-		 <&ccu CLK_MMC1_OUTPUT>,
+-		 <&ccu CLK_MMC1_SAMPLE>;
++			 <&ccu CLK_MMC1>,
++			 <&ccu CLK_MMC1_OUTPUT>,
++			 <&ccu CLK_MMC1_SAMPLE>;
+ 	clock-names = "ahb",
+-		      "mmc",
+-		      "output",
+-		      "sample";
++				  "mmc",
++				  "output",
++				  "sample";
+ };
+ 
+ &mmc2 {
+ 	compatible = "allwinner,sun7i-a20-mmc";
+ 	clocks = <&ccu CLK_BUS_MMC2>,
+-		 <&ccu CLK_MMC2>,
+-		 <&ccu CLK_MMC2_OUTPUT>,
+-		 <&ccu CLK_MMC2_SAMPLE>;
++			 <&ccu CLK_MMC2>,
++			 <&ccu CLK_MMC2_OUTPUT>,
++			 <&ccu CLK_MMC2_SAMPLE>;
+ 	clock-names = "ahb",
+-		      "mmc",
+-		      "output",
+-		      "sample";
++				  "mmc",
++				  "output",
++				  "sample";
+ };
+ 
+ &pio {
