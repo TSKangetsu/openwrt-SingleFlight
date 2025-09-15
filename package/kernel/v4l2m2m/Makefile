@@ -22,7 +22,7 @@ define KernelPackage/v4l2m2mpasser
 	DEPENDS:=+kmod-video-videobuf2 +kmod-video-mem2mem
 	TITLE:=Driver for v4l2 user space img exchange
 	FILES:=$(PKG_BUILD_DIR)/v4l2m2m.ko
-	AUTOLOAD:=$(call AutoProbe,v4l2m2m)
+	AUTOLOAD:=$(call AutoLoad,68,v4l2m2m)
 endef
 
 define Build/Compile

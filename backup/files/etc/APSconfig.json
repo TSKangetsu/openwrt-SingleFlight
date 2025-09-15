@@ -216,6 +216,8 @@
                 "DeviceHeight": 480,
                 "DeviceFPS": 60,
                 "enable": true,
+                "MaxBufferSize": 2,
+                "EnableDMAPassThrough": true,
                 "subdev": [
                     {
                         "padCount": 2,
@@ -228,13 +230,15 @@
                 ]
             },
             {
-                "DevicePATH": "/dev/video1",
+                "DevicePATH": "/dev/video2",
                 "DeviceDriver": "V4L2",
                 "DeviceIFormat": "YUYV",
                 "DeviceWidth": 256,
                 "DeviceHeight": 196,
-                "DeviceFPS": 30,
-                "enable": false,
+                "DeviceFPS": 25,
+                "enable": true,
+                "MaxBufferSize": 2,
+                "EnableDMAPassThrough": true,
                 "subdev": []
             }
         ]
@@ -250,7 +254,27 @@
         "BroadcastInterfaces": [
             "wlan0"
         ],
-        "COM_BroadCastWirelessFreq": 5600,
-        "COM_BroadCastWirelessPWRDBm": 3000
+        "COM_BroadCastWirelessPairingKey": "RuAPS_BEACON_5AEB",
+        "COM_BroadCastWirelessFreq": 5745,
+        "COM_BroadCastWirelessPWRDBm": 1500,
+        "COM_BroadCastWirelessWidth": "HT20",
+        "COM_BroadCastWirelessSTBC": 1,
+        "COM_BroadCastWirelessLDPC": 1,
+        "COM_BroadCastWirelessMCS": 2,
+        "COM_BroadCastWirelessRate": 6,
+        "COM_BroadCastWirelessStressTest": 0,
+        "COM_BroadCastWirelessFECSize": 1,
+        "COM_BroadCastWirelessSafeMode": false,
+        "COM_BroadCastWirelessUsingVHT": true,
+        "COM_VID_EncoderLancher": [
+            "/usr/bin/v4l2-cedurs",
+            "/dev/video1",
+            "640",
+            "480",
+            "60",
+            "30",
+            "NV12",
+            "&"
+        ]
     }
 }

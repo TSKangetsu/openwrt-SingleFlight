@@ -24,7 +24,7 @@ define KernelPackage/rtl8812eu
   TITLE:=Driver for Realtek 8812EU devices
   DEPENDS:=+kmod-mac80211 +kmod-cfg80211 +kmod-usb-core +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
   FILES:=$(PKG_BUILD_DIR)/8812eu.ko
-  AUTOLOAD:=$(call AutoProbe,8812eu)
+  AUTOLOAD:=$(call AutoLoad,70,8812eu)
   MODPARAMS.8812eu:=rtw_tx_pwr_by_rate=0 rtw_tx_pwr_lmt_enable=0
 endef
 

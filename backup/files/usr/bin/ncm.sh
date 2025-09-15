@@ -25,7 +25,19 @@ echo "0x1d6b" > idVendor
 echo "0x0104" > idProduct
 
 mkdir strings/0x409
-echo "1234567" > strings/0x409/serialnumber
+
+# Generate or retrieve USB serial number
+SERIAL_FILE="/etc/usb_serial_number"
+if [ ! -f "$SERIAL_FILE" ]; then
+    # Generate a random 16-character alphanumeric serial number on first boot
+    SERIAL=$(cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16)
+    echo "$SERIAL" > "$SERIAL_FILE"
+else
+    # Read existing serial number
+    SERIAL=$(cat "$SERIAL_FILE")
+fi
+
+echo "$SERIAL" > strings/0x409/serialnumber
 echo "Some Manufacturer" > strings/0x409/manufacturer
 echo "Some Product" > strings/0x409/product
 

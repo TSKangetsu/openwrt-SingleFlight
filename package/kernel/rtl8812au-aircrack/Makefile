@@ -24,7 +24,7 @@ define KernelPackage/rtl8812au-aircrack
   TITLE:=Driver for Realtek 8812 AU devices from aircrack
   DEPENDS:=+kmod-cfg80211 +kmod-usb-core +@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
   FILES:=$(PKG_BUILD_DIR)/88XXau.ko
-  AUTOLOAD:=$(call AutoProbe,88XXau)
+  AUTOLOAD:=$(call AutoLoad,70,88XXau)
 endef
 
 NOSTDINC_FLAGS := \

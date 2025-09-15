@@ -22,7 +22,7 @@ define KernelPackage/sunxi-cedar
 	TITLE:=Driver for sunxi de/encoder device cedar_dev
 	DEPENDS:=@TARGET_sunxi +kmod-cma-buf
 	FILES:=$(PKG_BUILD_DIR)/cedar_ve.ko
-	AUTOLOAD:=$(call AutoProbe,cedar_ve)
+	AUTOLOAD:=$(call AutoLoad,66,cedar_ve)
 endef
 
 define Build/Compile

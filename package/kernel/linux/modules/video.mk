@@ -685,7 +685,7 @@ define KernelPackage/video-async
   KCONFIG:=CONFIG_V4L2_ASYNC
   FILES:=$(LINUX_DIR)/drivers/media/$(V4L2_DIR)/v4l2-async.ko
   $(call AddDepends/video)
-  AUTOLOAD:=$(call AutoProbe,v4l2-async)
+  AUTOLOAD:=$(call AutoLoad,67,v4l2-async)
 endef
 
 $(eval $(call KernelPackage,video-async))
@@ -695,7 +695,7 @@ define KernelPackage/video-fwnode
   KCONFIG:=CONFIG_V4L2_FWNODE
   FILES:=$(LINUX_DIR)/drivers/media/$(V4L2_DIR)/v4l2-fwnode.ko
   $(call AddDepends/video,+kmod-video-async)
-  AUTOLOAD:=$(call AutoProbe,v4l2-fwnode)
+  AUTOLOAD:=$(call AutoLoad,67,v4l2-fwnode)
 endef
 
 $(eval $(call KernelPackage,video-fwnode))
@@ -740,7 +740,7 @@ define KernelPackage/video-uvc
   KCONFIG:= CONFIG_USB_VIDEO_CLASS CONFIG_UVC_COMMON
   FILES:=$(LINUX_DIR)/drivers/media/$(V4L2_USB_DIR)/uvc/uvcvideo.ko \
 	$(LINUX_DIR)/drivers/media/common/uvc.ko
-  AUTOLOAD:=$(call AutoProbe,uvc uvcvideo)
+  AUTOLOAD:=$(call AutoLoad,72,uvc uvcvideo)
   $(call AddDepends/camera)
 endef
 
@@ -1426,7 +1426,7 @@ define KernelPackage/camera-ov5640
            CONFIG_VIDEO_OV8858=n \
            CONFIG_VIDEO_ST_VGXY61=n
   FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
-  AUTOLOAD:=$(call AutoLoad,70,ov5640)
+  AUTOLOAD:=$(call AutoLoad,69,ov5640)
   $(call AddDepends/camera)
 endef
 
