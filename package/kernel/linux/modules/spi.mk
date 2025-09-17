@@ -65,7 +65,7 @@ define KernelPackage/spi-dev
           CONFIG_SPI=y \
           CONFIG_SPI_MASTER=y
   FILES:=$(LINUX_DIR)/drivers/spi/spidev.ko
-  AUTOLOAD:=$(call AutoProbe,70,spidev)
+  AUTOLOAD:=$(call AutoLoad,70,spidev)
 endef
 
 define KernelPackage/spi-dev/description
