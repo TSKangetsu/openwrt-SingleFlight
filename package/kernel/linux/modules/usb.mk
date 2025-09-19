@@ -133,7 +133,7 @@ define KernelPackage/usb-configfs
            CONFIG_USB_CONFIGFS_ECM_SUBSET=n \
            CONFIG_USB_CONFIGFS_RNDIS=y \
            CONFIG_USB_CONFIGFS_EEM=n \
-           CONFIG_USB_CONFIGFS_MASS_STORAGE=n \
+           CONFIG_USB_CONFIGFS_MASS_STORAGE=y \
            CONFIG_USB_CONFIGFS_F_LB_SS=n \
            CONFIG_USB_CONFIGFS_F_FS=n \
            CONFIG_USB_CONFIGFS_F_UAC1=n \

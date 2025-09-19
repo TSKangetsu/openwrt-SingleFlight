@@ -1,0 +1,9 @@
+--- a/configs/nanopi_neo_air_defconfig
++++ b/configs/nanopi_neo_air_defconfig
+@@ -9,3 +9,6 @@ CONFIG_DRAM_CLK=408
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_USB_EHCI_HCD=y
+ CONFIG_USB_OHCI_HCD=y
++CONFIG_BOOTDELAY=0
++CONFIG_SUPPORT_EMMC_BOOT=y
++CONFIG_MMC_SUNXI_SLOT_EXTRA=2
