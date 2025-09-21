@@ -1,5 +1,10 @@
 # Put your custom commands here that should be executed once
 # the system init finished. By default this file does nothing.
-/usr/bin/ncm.sh
+adb start-server &
+if [ ! -f "/host-mode" ]; then
+    /usr/bin/ncm.sh
+fi
 /usr/bin/singleIntSetter.sh
+#/usr/bin/RuAPM_Cli -b
+#/usr/bin/sinffer wlan0 RuAPS_BEACON_5AEB HT20 &
 exit 0

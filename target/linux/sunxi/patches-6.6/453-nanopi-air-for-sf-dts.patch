@@ -46,7 +46,7 @@
  /dts-v1/;
  #include "sun8i-h3.dtsi"
  #include "sunxi-common-regulators.dtsi"
-@@ -47,97 +5,344 @@
+@@ -47,60 +5,195 @@
  #include <dt-bindings/gpio/gpio.h>
  
  / {
@@ -199,13 +199,6 @@
 +&syscon {
 +    compatible = "allwinner,sun8i-h3-system-control", "syscon";	//add syscon module load
 +};
-+
-+&r_pio {
-+    wifi_en_pin: wifi_en_pin {
-+        pins = "PL7";
-+        function = "gpio_out";
-+    };
-+};
  
 -	aliases {
 -		serial0 = &uart0;
@@ -234,6 +227,13 @@
 -		compatible = "mmc-pwrseq-simple";
 -		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
 -	};
++&r_pio {
++    wifi_en_pin: wifi_en_pin {
++        pins = "PL7";
++        function = "gpio_out";
++    };
++};
++
 +&pio {
 +    mmc0_cd_pin: mmc0_cd_pin {
 +        pins = "PF6";
@@ -272,16 +272,6 @@
 -		interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>; /* PG10 / EINT10 */
 -		interrupt-names = "host-wake";
 -	};
--};
--
--&mmc2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&mmc2_8bit_pins>;
--	vmmc-supply = <&reg_vcc3v3>;
--	vqmmc-supply = <&reg_vcc3v3>;
--	bus-width = <8>;
--	non-removable;
--	status = "okay";
 +    vmmc-supply = <&reg_vcc3v3>;
 +    vqmmc-supply = <&reg_vcc3v3>;
 +    mmc-pwrseq = <&wifi_pwrseq>;
@@ -298,33 +288,24 @@
 +    };
  };
  
+ &mmc2 {
+@@ -114,30 +207,152 @@
+ };
+ 
  &uart0 {
 -	pinctrl-names = "default";
 -	pinctrl-0 = <&uart0_pa_pins>;
 -	status = "okay";
--};
--
++    pinctrl-names = "default";
++    pinctrl-0 = <&uart0_pa_pins>;
++    status = "okay";
+ };
+ 
 -&uart3 {
 -	pinctrl-names = "default";
 -	pinctrl-0 = <&uart3_pins>, <&uart3_rts_cts_pins>;
 -	uart-has-rtscts;
 -	status = "okay";
--
--	bluetooth {
--		compatible = "brcm,bcm43438-bt";
--		clocks = <&rtc CLK_OSC32K_FANOUT>;
--		clock-names = "lpo";
--		vbat-supply = <&reg_vcc3v3>;
--		vddio-supply = <&reg_vcc3v3>;
--		device-wakeup-gpios = <&pio 0 8 GPIO_ACTIVE_HIGH>; /* PA8 */
--		host-wakeup-gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
--		shutdown-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
--	};
-+    pinctrl-names = "default";
-+    pinctrl-0 = <&uart0_pa_pins>;
-+    status = "okay";
-+};
-+
 +&uart1 {   
 +    pinctrl-names = "default";
 +    pinctrl-0 = <&uart1_pins>;
@@ -345,7 +326,17 @@
 +    //    	};
 +    // };
 +};
-+
+ 
+-	bluetooth {
+-		compatible = "brcm,bcm43438-bt";
+-		clocks = <&rtc CLK_OSC32K_FANOUT>;
+-		clock-names = "lpo";
+-		vbat-supply = <&reg_vcc3v3>;
+-		vddio-supply = <&reg_vcc3v3>;
+-		device-wakeup-gpios = <&pio 0 8 GPIO_ACTIVE_HIGH>; /* PA8 */
+-		host-wakeup-gpios = <&pio 0 7 GPIO_ACTIVE_HIGH>; /* PA7 */
+-		shutdown-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG13 */
+-	};
 +&uart2 {
 +    pinctrl-names = "default";
 +    pinctrl-0 = <&uart2_pins>;
@@ -436,16 +427,16 @@
 +};
 +
 +&usb_otg {
-+    dr_mode = "peripheral";
++    dr_mode = "otg";
 +    status = "okay";
 +};
 +
 +&ehci0 {
-+    // status = "okay";
++    status = "okay";
 +};
 +
 +&ohci0 {
-+    // status = "okay";
++    status = "okay";
 +};
 +
 +&ehci1 {

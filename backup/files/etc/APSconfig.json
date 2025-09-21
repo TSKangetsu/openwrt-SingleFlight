@@ -206,10 +206,10 @@
         }
     },
     "VideoConfig": {
-        "V4L2Encoder": "/dev/video1",
+        "V4L2Encoder": "/dev/video0",
         "Device": [
             {
-                "DevicePATH": "/dev/video0",
+                "DevicePATH": "/dev/video1",
                 "DeviceDriver": "V4L2",
                 "DeviceIFormat": "NV12",
                 "DeviceWidth": 640,
@@ -234,8 +234,8 @@
                 "DeviceDriver": "V4L2",
                 "DeviceIFormat": "YUYV",
                 "DeviceWidth": 256,
-                "DeviceHeight": 196,
-                "DeviceFPS": 25,
+                "DeviceHeight": 192,
+                "DeviceFPS": 50,
                 "enable": true,
                 "MaxBufferSize": 2,
                 "EnableDMAPassThrough": true,
@@ -246,10 +246,10 @@
     "CommonConfig": {
         "APM_STATUS_LED": "nanopi:blue:status",
         "SYS_STATUS_LED": "nanopi:green:pwr",
-        "COM_CastFrameIndex": 0,
+        "COM_CastFrameIndex": 1,
         "COM_BroadCastEnable": true,
         "COM_NormalCastEnable": true,
-        "COM_BroadCastBitRate": 300000,
+        "COM_BroadCastBitRate": 30,
         "COM_BroadCastPFrameSize": 15,
         "BroadcastInterfaces": [
             "wlan0"
@@ -266,15 +266,9 @@
         "COM_BroadCastWirelessFECSize": 1,
         "COM_BroadCastWirelessSafeMode": false,
         "COM_BroadCastWirelessUsingVHT": true,
+        "COM_BroadCastWirelessShortGI": true,
         "COM_VID_EncoderLancher": [
-            "/usr/bin/v4l2-cedurs",
-            "/dev/video1",
-            "640",
-            "480",
-            "60",
-            "30",
-            "NV12",
-            "&"
+            "/usr/bin/v4l2-cedurs"
         ]
     }
 }

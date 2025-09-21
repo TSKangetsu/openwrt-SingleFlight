@@ -5,6 +5,8 @@
 # # modprobe g_ncm
 # modprobe g_ether
 
+echo peripheral > /sys/devices/platform/soc/1c19000.usb/musb-hdrc.1.auto/mode
+
 modprobe libcomposite
 mount -t configfs none /sys/kernel/config
 mkdir -p /sys/kernel/config/usb_gadget/g1
