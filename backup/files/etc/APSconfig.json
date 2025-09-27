@@ -255,18 +255,18 @@
             "wlan0"
         ],
         "COM_BroadCastWirelessPairingKey": "RuAPS_BEACON_5AEB",
-        "COM_BroadCastWirelessFreq": 5745,
-        "COM_BroadCastWirelessPWRDBm": 1500,
+        "COM_BroadCastWirelessFreq": 5825,
+        "COM_BroadCastWirelessPWRDBm": 2700,
         "COM_BroadCastWirelessWidth": "HT20",
         "COM_BroadCastWirelessSTBC": 1,
         "COM_BroadCastWirelessLDPC": 1,
-        "COM_BroadCastWirelessMCS": 2,
+        "COM_BroadCastWirelessMCS": 1,
         "COM_BroadCastWirelessRate": 6,
         "COM_BroadCastWirelessStressTest": 0,
         "COM_BroadCastWirelessFECSize": 1,
         "COM_BroadCastWirelessSafeMode": false,
-        "COM_BroadCastWirelessUsingVHT": true,
-        "COM_BroadCastWirelessShortGI": true,
+        "COM_BroadCastWirelessUsingVHT": false,
+        "COM_BroadCastWirelessShortGI": false,
         "COM_VID_EncoderLancher": [
             "/usr/bin/v4l2-cedurs"
         ]
