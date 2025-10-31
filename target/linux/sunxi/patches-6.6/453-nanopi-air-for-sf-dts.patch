@@ -46,7 +46,7 @@
  /dts-v1/;
  #include "sun8i-h3.dtsi"
  #include "sunxi-common-regulators.dtsi"
-@@ -47,60 +5,195 @@
+@@ -47,60 +5,199 @@
  #include <dt-bindings/gpio/gpio.h>
  
  / {
@@ -71,11 +71,11 @@
 +    leds {
 +        compatible = "gpio-leds";
 +
-+        pwr {
-+            label = "nanopi:green:pwr";
-+            gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;	/* PL10 */
-+            default-state = "on";
-+        };
++        // pwr {
++        //     label = "nanopi:green:pwr";
++        //     gpios = <&r_pio 0 10 GPIO_ACTIVE_HIGH>;	/* PL10 */
++        //     default-state = "on";
++        // };
 +
 +        status {
 +            label = "nanopi:blue:status";
@@ -182,6 +182,10 @@
 +// 	};
 +// };
 +
++&r_pwm {
++    status = "okay";
++};
++
 +&ccu {
 +    // APB2 Configuration Register, see datasheet 0x0058
 +    // apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
@@ -194,10 +198,6 @@
 +    assigned-clocks = <&ccu CLK_APB2>;
 +    assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>;
 +    assigned-clock-rates = <100000000>;
-+};
-+
-+&syscon {
-+    compatible = "allwinner,sun8i-h3-system-control", "syscon";	//add syscon module load
 +};
  
 -	aliases {
@@ -227,6 +227,10 @@
 -		compatible = "mmc-pwrseq-simple";
 -		reset-gpios = <&r_pio 0 7 GPIO_ACTIVE_LOW>; /* PL7 */
 -	};
++&syscon {
++    compatible = "allwinner,sun8i-h3-system-control", "syscon";	//add syscon module load
++};
++
 +&r_pio {
 +    wifi_en_pin: wifi_en_pin {
 +        pins = "PL7";
@@ -289,7 +293,7 @@
  };
  
  &mmc2 {
-@@ -114,30 +207,152 @@
+@@ -114,30 +211,152 @@
  };
  
  &uart0 {
