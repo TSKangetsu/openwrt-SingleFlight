@@ -13,6 +13,7 @@ while true; do
         if adb devices | grep -q "device" && ! adb devices | grep -q "offline" && ! adb devices | grep -q "unauthorized"; then
             adb reverse tcp:8025 tcp:554
             adb reverse tcp:8022 tcp:22
+            adb reverse tcp:8024 tcp:27015
             echo "Port forwarding complete."
         else
             echo "Device disconnected or abnormal state during wait, skipping port forwarding."

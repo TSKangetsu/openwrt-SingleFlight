@@ -206,7 +206,7 @@
         }
     },
     "VideoConfig": {
-        "V4L2Encoder": "/dev/video0",
+        "V4L2Encoder": "USER",
         "Device": [
             {
                 "DevicePATH": "/dev/video1",
@@ -217,7 +217,7 @@
                 "DeviceFPS": 60,
                 "enable": true,
                 "MaxBufferSize": 2,
-                "EnableDMAPassThrough": true,
+                "EnableDMAPassThrough": false,
                 "subdev": [
                     {
                         "padCount": 2,
@@ -238,7 +238,7 @@
                 "DeviceFPS": 50,
                 "enable": true,
                 "MaxBufferSize": 2,
-                "EnableDMAPassThrough": true,
+                "EnableDMAPassThrough": false,
                 "subdev": []
             }
         ]
@@ -267,8 +267,6 @@
         "COM_BroadCastWirelessSafeMode": false,
         "COM_BroadCastWirelessUsingVHT": false,
         "COM_BroadCastWirelessShortGI": false,
-        "COM_VID_EncoderLancher": [
-            "/usr/bin/v4l2-cedurs"
-        ]
+        "COM_VID_EncoderLancher": []
     }
 }

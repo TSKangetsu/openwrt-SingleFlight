@@ -5,7 +5,10 @@ if [ ! -f "/host-mode" ]; then
     /usr/bin/ncm.sh
 fi
 /usr/bin/singleIntSetter.sh
+
+/usr/bin/wifiana.sh wlan0 mode2
 /usr/bin/RuAPM_Cli -b
+
 #/usr/bin/sinffer wlan0 RuAPS_BEACON_5AEB HT20 &
 adb.sh &
 exit 0
