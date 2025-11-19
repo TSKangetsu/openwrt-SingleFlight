@@ -154,22 +154,22 @@ endef
 
 $(eval $(call KernelPackage,usb-configfs))
 
-define KernelPackage/usb-gadget-uvc
-  TITLE:=Support for uvc gadget
-  KCONFIG:= CONFIG_USB_F_UVC=y \
-            CONFIG_USB_G_WEBCAM
-  DEPENDS:=+kmod-video-dma-sg +kmod-video-uvc +kmod-usb-gadget +kmod-usb-lib-composite +kmod-video-videobuf2
-  FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_uvc.ko \
-         $(LINUX_DIR)/drivers/usb/gadget/legacy/g_webcam.ko
-#   $(call AddDepends/camera)
-#   $(call AddDepends/usb)
-endef
+# define KernelPackage/usb-gadget-uvc
+#   TITLE:=Support for uvc gadget
+#   KCONFIG:= CONFIG_USB_F_UVC=y \
+#             CONFIG_USB_G_WEBCAM
+#   DEPENDS:=+kmod-video-dma-sg +kmod-video-uvc +kmod-usb-gadget +kmod-usb-lib-composite +kmod-video-videobuf2
+#   FILES:=$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_uvc.ko \
+#          $(LINUX_DIR)/drivers/usb/gadget/legacy/g_webcam.ko
+# #   $(call AddDepends/camera)
+# #   $(call AddDepends/usb)
+# endef
 
-define KernelPackage/usb-gadget-uvc/description
-  Kernel support for g_webcam
-endef
+# define KernelPackage/usb-gadget-uvc/description
+#   Kernel support for g_webcam
+# endef
 
-$(eval $(call KernelPackage,usb-gadget-uvc))
+# $(eval $(call KernelPackage,usb-gadget-uvc))
 
 define KernelPackage/usb-gadget-hid
   TITLE:=USB HID Gadget Support

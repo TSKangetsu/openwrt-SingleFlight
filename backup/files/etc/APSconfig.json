@@ -244,8 +244,8 @@
         ]
     },
     "CommonConfig": {
-        "APM_STATUS_LED": "nanopi:blue:status",
-        "SYS_STATUS_LED": "nanopi:green:pwr",
+        "APM_STATUS_LED": "",
+        "SYS_STATUS_LED": "nanopi:blue:status",
         "COM_CastFrameIndex": 1,
         "COM_BroadCastEnable": true,
         "COM_NormalCastEnable": true,

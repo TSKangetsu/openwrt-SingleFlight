@@ -6,9 +6,51 @@ if [ ! -f "/host-mode" ]; then
 fi
 /usr/bin/singleIntSetter.sh
 
-/usr/bin/wifiana.sh wlan0 mode2
-/usr/bin/RuAPM_Cli -b
+CONFIG_FILE=/etc/APSconfig.json
 
-#/usr/bin/sinffer wlan0 RuAPS_BEACON_5AEB HT20 &
+if [ -e /dev/video2 ] && [ -e /dev/video3 ]; then
+    uci set network.lan.ipaddr='192.168.222.1'
+
+    # Get the resolution with the highest FPS for /dev/video2 (POSIX-compliant awk script)
+    BEST_LINE=$(v4l2-ctl -d /dev/video2 --list-formats-ext 2>/dev/null | \
+        awk '
+        /Size: Discrete/ { size=$3 }
+        /Interval: Discrete/ && size != "" {
+            if (match($0, /\([0-9\.]+\s+fps\)/)) {
+                fps_part = substr($0, RSTART + 1, RLENGTH - 6) # Extract FPS from "(50.000 fps)"
+                print fps_part, size
+            }
+            size=""
+        }' | sort -nr | head -n1)
+
+    if [ -n "$BEST_LINE" ]; then
+        FPS_FLOAT=$(echo "$BEST_LINE" | awk '{print $1}')
+        RES=$(echo "$BEST_LINE" | awk '{print $2}')
+        
+        FPS=$(echo "$FPS_FLOAT" | awk '{printf "%.0f", $1}')
+        WIDTH=$(echo "$RES" | awk -F'x' '{print $1}')
+        HEIGHT=$(echo "$RES" | awk -F'x' '{print $2}')
+
+        # Only update if all variables were parsed correctly
+        if [ -n "$WIDTH" ] && [ -n "$HEIGHT" ] && [ -n "$FPS" ]; then
+            # Use sed 'c\' command to replace the whole line, which is more robust
+            sed -i -e "/\"DevicePATH\": \"\/dev\/video2\"/,/^\s*}/{
+                /\"DeviceWidth\":/c\                \"DeviceWidth\": $WIDTH,
+                /\"DeviceHeight\":/c\                \"DeviceHeight\": $HEIGHT,
+                /\"DeviceFPS\":/c\                \"DeviceFPS\": $FPS,
+            }" "$CONFIG_FILE"
+        fi
+    fi
+
+    /usr/bin/wifiana.sh wlan0 mode2
+    /usr/bin/RuAPM_Cli -b
+else
+    /usr/bin/sinffer wlan0 RuAPS_BEACON_5AEB HT20 &
+    uci set network.lan.ipaddr='192.168.223.1'
+fi
+
+uci commit network
+/etc/init.d/network restart
+
 adb.sh &
 exit 0
