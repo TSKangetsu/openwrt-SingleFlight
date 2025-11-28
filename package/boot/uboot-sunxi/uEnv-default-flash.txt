@@ -1,0 +1,9 @@
+setenv console ttyS0,115200
+setenv mtdparts_def "mtdparts=spi0.0:5504k(firmware)ro,-(rootfs)"
+setenv bootargs console=ttyS0,115200 earlyprintk root=/dev/mtdblock1 rootwait ${mtdparts_def} isolcpus=2,3 nohz_full=2,3 rcu_nocbs=2,3
+
+sf probe
+sf read 0x48000000 0x100000 0x10000
+sf read 0x45000000 0x120000 0x400000
+
+bootm 0x45000000 - 0x48000000

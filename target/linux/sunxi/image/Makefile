@@ -27,15 +27,24 @@ define Build/sunxi-sdcard
 	rm -f $@.boot
 endef
 
+define Build/sunxi-flash
+	dd if=$(STAGING_DIR_IMAGE)/$(DEVICE_NAME)-u-boot-with-spl.bin of=$@ bs=1024 conv=notrunc
+	dd if=$(STAGING_DIR_IMAGE)/$(DEVICE_NAME)-flash-boot.scr of=$@ bs=1024 seek=1000 conv=notrunc
+	dd if=$(DTS_DIR)/$(SUNXI_DTS).dtb of=$@ bs=1024 seek=1024 conv=notrunc
+	dd if=$(IMAGE_KERNEL) of=$@ bs=1024 seek=1152 conv=notrunc
+	dd if=$(IMAGE_ROOTFS) of=$@ bs=1024 seek=5504 conv=notrunc
+endef
+
 # why \x00\x00\x00\x00 for zImage-initramfs
 define Device/Default
-  PROFILES := Default
-  KERNEL_NAME := zImage
-  KERNEL := kernel-bin | uImage none
-  IMAGES := sdcard.img.gz
-  IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
-  SUNXI_DTS_DIR :=allwinner/
-  SUNXI_DTS = $$(SUNXI_DTS_DIR)$$(SOC)-$(lastword $(subst _, ,$(1)))
+	PROFILES := Default
+	KERNEL_NAME := zImage
+	KERNEL := kernel-bin | uImage none
+	IMAGES := factory.bin sdcard.img.gz
+	IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
+	IMAGE/factory.bin := sunxi-flash | append-metadata
+	SUNXI_DTS_DIR :=allwinner/
+	SUNXI_DTS = $$(SUNXI_DTS_DIR)$$(SOC)-$(lastword $(subst _, ,$(1)))
 endef
 
 include $(SUBTARGET).mk
