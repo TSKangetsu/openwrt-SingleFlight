@@ -60,7 +60,6 @@ CONFIG_TARGET_sunxi_cortexa7=y
 # CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_nanopi-m1-plus is not set
 # CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_nanopi-neo is not set
 CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_nanopi-neo-air=y
-# CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_nanopi-neo-air-nor is not set
 # CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_nanopi-r1 is not set
 # CONFIG_TARGET_sunxi_cortexa7_DEVICE_friendlyarm_zeropi is not set
 # CONFIG_TARGET_sunxi_cortexa7_DEVICE_lemaker_bananapi is not set
