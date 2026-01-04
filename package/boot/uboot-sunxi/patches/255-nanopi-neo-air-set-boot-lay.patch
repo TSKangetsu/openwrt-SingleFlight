@@ -1,7 +1,11 @@
 --- a/configs/nanopi_neo_air_defconfig
 +++ b/configs/nanopi_neo_air_defconfig
-@@ -9,3 +9,11 @@ CONFIG_DRAM_CLK=408
- CONFIG_CONSOLE_MUX=y
+@@ -6,6 +6,24 @@ CONFIG_MACH_SUN8I_H3=y
+ CONFIG_DRAM_CLK=408
+ # CONFIG_VIDEO_DE2 is not set
+ # CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+-CONFIG_CONSOLE_MUX=y
++CONFIG_CONSOLE_MUX=n
  CONFIG_USB_EHCI_HCD=y
  CONFIG_USB_OHCI_HCD=y
 +CONFIG_BOOTDELAY=0
@@ -12,6 +16,16 @@
 +CONFIG_SPL_SPI_SUNXI=y
 +CONFIG_CMD_SF=y
 +CONFIG_SPI_FLASH_WINBOND=y
++
++CONFIG_MENU=n
++CONFIG_DISABLE_CONSOLE=y
++
++# CONFIG_SPL_SERIAL is not set
++# CONFIG_SERIAL_PRESENT is not set
++# CONFIG_SPL_SERIAL_PRESENT is not set
++CONFIG_REQUIRE_SERIAL_CONSOLE=n
++CONFIG_SILENT_CONSOLE=y
++# CONFIG_SILENT_U_BOOT_ONLY is not set
 --- a/arch/arm/dts/sun8i-h3-nanopi-neo-air.dts
 +++ b/arch/arm/dts/sun8i-h3-nanopi-neo-air.dts
 @@ -141,3 +141,16 @@

@@ -46,7 +46,7 @@
  /dts-v1/;
  #include "sun8i-h3.dtsi"
  #include "sunxi-common-regulators.dtsi"
-@@ -52,6 +10,12 @@
+@@ -52,37 +10,178 @@
  
  	aliases {
  		serial0 = &uart0;
@@ -58,8 +58,13 @@
 +		mmc2 = &mmc2;	
  	};
  
- 	chosen {
-@@ -61,28 +25,163 @@
+-	chosen {
+-		stdout-path = "serial0:115200n8";
+-	};
++	// chosen {
++	// 	stdout-path = "serial0:115200n8";
++	// };
+ 
  	leds {
  		compatible = "gpio-leds";
  
@@ -160,28 +165,28 @@
 +	};
 +};
 +
-+// &thermal_zones {
-+// 	cpu_thermal {
-+// 		cooling-maps {
-+// 			cpu-hot-limit {
-+// 				trip = <&cpu_hot_trip>;
-+// 				cooling-device =
-+// 					<&cpu0 1 2>,
-+// 					<&cpu1 1 2>,
-+// 					<&cpu2 1 1>,
-+// 					<&cpu3 1 1>;
-+// 			};
-+// 			cpu-danger-limit {
-+// 				trip = <&cpu_very_hot_trip>;
-+// 				cooling-device =
-+// 					<&cpu0 2 2>,
-+// 					<&cpu1 2 2>,
-+// 					<&cpu2 2 2>,
-+// 					<&cpu3 2 2>;
-+// 			};
-+// 		};
-+// 	};
-+// };
++&thermal_zones {
++	cpu_thermal {
++		cooling-maps {
++			cpu-hot-limit {
++				trip = <&cpu_hot_trip>;
++				cooling-device =
++					<&cpu0 1 2>,
++					<&cpu1 1 2>,
++					<&cpu2 1 1>,
++					<&cpu3 1 1>;
++			};
++			cpu-danger-limit {
++				trip = <&cpu_very_hot_trip>;
++				cooling-device =
++					<&cpu0 2 2>,
++					<&cpu1 2 2>,
++					<&cpu2 2 2>,
++					<&cpu3 2 2>;
++			};
++		};
++	};
++};
 +
 +&r_pwm {
 +	status = "okay";
@@ -308,19 +313,19 @@
 +	status = "okay";
 +	spi-max-frequency = <12000000>;
 +
-+	flash@0 {
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		compatible = "winbond,w25q128", "jedec,spi-nor";
-+		reg = <0>;
-+		spi-max-frequency = <12000000>;
-+	};
-+	// spi@0 {
-+	//     compatible = "rohm,dh2228fv";
-+	//     reg = <0x00>;
-+	//     spi-max-frequency = <10000000>;
-+	//     status = "okay";
++	// flash@0 {
++	// 	#address-cells = <1>;
++	// 	#size-cells = <1>;
++	// 	compatible = "winbond,w25q128", "jedec,spi-nor";
++	// 	reg = <0>;
++	// 	spi-max-frequency = <12000000>;
 +	// };
++	spi@0 {
++	    compatible = "rohm,dh2228fv";
++	    reg = <0x00>;
++	    spi-max-frequency = <10000000>;
++	    status = "okay";
++	};
 +};
 +
 +&csi {
