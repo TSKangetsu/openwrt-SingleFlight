@@ -40,7 +40,7 @@ define Device/Default
 	PROFILES := Default
 	KERNEL_NAME := zImage
 	KERNEL := kernel-bin | uImage none
-	IMAGES := factory.bin sdcard.img.gz
+	IMAGES := factory.bin
 	IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
 	IMAGE/factory.bin := sunxi-flash | append-metadata
 	SUNXI_DTS_DIR :=allwinner/
