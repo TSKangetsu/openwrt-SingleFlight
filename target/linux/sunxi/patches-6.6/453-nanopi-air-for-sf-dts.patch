@@ -46,7 +46,7 @@
  /dts-v1/;
  #include "sun8i-h3.dtsi"
  #include "sunxi-common-regulators.dtsi"
-@@ -52,37 +10,178 @@
+@@ -52,37 +10,179 @@
  
  	aliases {
  		serial0 = &uart0;
@@ -115,8 +115,8 @@
 +	reg_cam_dovdd: cam-dovdd {
 +		compatible = "regulator-fixed";
 +		regulator-name = "cam-dovdd";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
++		regulator-min-microvolt = <2800000>;
++		regulator-max-microvolt = <2800000>;
 +		vin-supply = <&reg_vcc3v3>;
 +	};
 +
@@ -196,14 +196,10 @@
 +	// APB2 Configuration Register, see datasheet 0x0058
 +	// apb2_reg = <0x02010002>; /* PLL6 div in 600/2/3 = 100MHZ for 460800 baudrate uart */
 +
-+	// assigned-clocks = <&ccu CLK_CSI_MCLK>;
-+	// assigned-clock-parents = <&osc24M>;
-+	// assigned-clock-rates = <24000000>;
-+
-+	/* settings APB2 as 100MHz */
-+	assigned-clocks = <&ccu CLK_APB2>;
-+	assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>;
-+	assigned-clock-rates = <100000000>;
++	/* settings APB2 as 100MHz, CSI_MCLK as 24MHz */
++	assigned-clocks = <&ccu CLK_APB2>, <&ccu CLK_CSI_MCLK>;
++	assigned-clock-parents = <&ccu CLK_PLL_PERIPH0>, <&osc24M>;
++	assigned-clock-rates = <100000000>, <24000000>;
 +};
 +
 +&syscon {
@@ -218,6 +214,11 @@
 +};
 +
 +&pio {
++	csi_mclk_pin: csi-mclk-pin {
++		pins = "PE1";
++		function = "csi";
++	};
++
 +	mmc0_cd_pin: mmc0_cd_pin {
 +		pins = "PF6";
 +		function = "gpio_in";
@@ -260,7 +261,7 @@
  	status = "okay";
  };
  
-@@ -119,25 +222,156 @@
+@@ -119,25 +222,154 @@
  	status = "okay";
  };
  
@@ -329,6 +330,8 @@
 +};
 +
 +&csi {
++	pinctrl-names = "default";
++	pinctrl-0 = <&csi_pins &csi_mclk_pin>;
 +	status = "okay";
 +
 +	port {
@@ -363,12 +366,8 @@
 +	ov5640: camera@3c {
 +		compatible = "ovti,ov5640";
 +		reg = <0x3c>;
-+		clocks = <&cam_xclk>;
-+		// clocks = <&ccu CLK_CSI_MCLK>;
++		clocks = <&ccu CLK_CSI_MCLK>;
 +		clock-names = "xclk";
-+
-+		// pinctrl-names = "default";
-+		// pinctrl-0 = <&csi_mclk_pin>;
 +
 +		reset-gpios = <&pio 4 14 GPIO_ACTIVE_LOW>;
 +		powerdown-gpios = <&pio 4 15 GPIO_ACTIVE_HIGH>;

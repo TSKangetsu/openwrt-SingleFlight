@@ -64,14 +64,24 @@ if [ -f /usr/log/ruapm_cli.log ]; then
     fi
 fi
 
+#/usr/bin/sinffer wlan0 RuAPS_BEACON_5AEC HT20 &
+#uci set network.lan.ipaddr='192.168.223.1'
+
 /usr/bin/wifiana.sh wlan0 mode2
 tmux new-session -d -s aps "/usr/bin/RuAPM_Cli -c 2>&1 | tee -a /usr/log/ruapm_cli.log"
 ttyd -W -p 7681 tmux new-session -A -s aps &
 sleep 1
 /usr/bin/singleIntSetter.sh
 
+
+
 uci commit network
 /etc/init.d/network restart
 
 adb.sh &
+
+# Blackbox log symlink for Ruconfig WebApp
+mkdir -p /usr/log/Singleflight
+ln -sf /usr/log/Singleflight/SingleflightBlackBox.BBL /www/Ruconfig/blackbox.bbl
+
 exit 0

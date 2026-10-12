@@ -1,0 +1,88 @@
+#!/bin/sh
+
+CONFIG_FILE="/etc/APSconfig.json"
+
+# Print CORS headers
+cors_headers() {
+    printf "Access-Control-Allow-Origin: *\r\n"
+    printf "Access-Control-Allow-Methods: GET, PUT, POST, OPTIONS, HEAD\r\n"
+    printf "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n"
+    printf "Access-Control-Max-Age: 86400\r\n"
+}
+
+case "$REQUEST_METHOD" in
+    OPTIONS)
+        printf "Status: 204 No Content\r\n"
+        cors_headers
+        printf "Content-Length: 0\r\n"
+        printf "\r\n"
+        exit 0
+        ;;
+
+    PUT|POST)
+        TMP_FILE="${CONFIG_FILE}.tmp.$$"
+        # Read request body directly from standard input
+        cat > "$TMP_FILE"
+
+        if [ -s "$TMP_FILE" ]; then
+            mv -f "$TMP_FILE" "$CONFIG_FILE"
+            chmod 644 "$CONFIG_FILE"
+            printf "Status: 200 OK\r\n"
+            cors_headers
+            printf "Content-Type: application/json; charset=utf-8\r\n"
+            printf "\r\n"
+            printf '{"code":0,"msg":"success"}\n'
+        else
+            rm -f "$TMP_FILE"
+            printf "Status: 400 Bad Request\r\n"
+            cors_headers
+            printf "Content-Type: application/json; charset=utf-8\r\n"
+            printf "\r\n"
+            printf '{"code":400,"msg":"Empty payload"}\n'
+        fi
+        exit 0
+        ;;
+
+    GET)
+        if [ -f "$CONFIG_FILE" ]; then
+            FILE_SIZE=$(wc -c < "$CONFIG_FILE" 2>/dev/null || echo 0)
+            printf "Status: 200 OK\r\n"
+            cors_headers
+            printf "Content-Type: application/json; charset=utf-8\r\n"
+            printf "Content-Length: %s\r\n" "$FILE_SIZE"
+            printf "\r\n"
+            cat "$CONFIG_FILE"
+        else
+            printf "Status: 404 Not Found\r\n"
+            cors_headers
+            printf "Content-Type: application/json; charset=utf-8\r\n"
+            printf "\r\n"
+            printf '{"code":404,"msg":"File not found"}\n'
+        fi
+        exit 0
+        ;;
+
+    HEAD)
+        if [ -f "$CONFIG_FILE" ]; then
+            FILE_SIZE=$(wc -c < "$CONFIG_FILE" 2>/dev/null || echo 0)
+            printf "Status: 200 OK\r\n"
+            cors_headers
+            printf "Content-Type: application/json; charset=utf-8\r\n"
+            printf "Content-Length: %s\r\n" "$FILE_SIZE"
+            printf "\r\n"
+        else
+            printf "Status: 404 Not Found\r\n"
+            cors_headers
+            printf "\r\n"
+        fi
+        exit 0
+        ;;
+
+    *)
+        printf "Status: 405 Method Not Allowed\r\n"
+        cors_headers
+        printf "Allow: GET, PUT, POST, OPTIONS, HEAD\r\n"
+        printf "\r\n"
+        exit 0
+        ;;
+esac

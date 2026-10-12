@@ -1426,7 +1426,7 @@ define KernelPackage/camera-ov5640
            CONFIG_VIDEO_OV8858=n \
            CONFIG_VIDEO_ST_VGXY61=n
   FILES:= $(LINUX_DIR)/drivers/media/i2c/ov5640.ko
-  AUTOLOAD:=$(call AutoLoad,69,ov5640)
+  AUTOLOAD:=$(call AutoLoad,75,ov5640)
   $(call AddDepends/camera)
 endef
 
